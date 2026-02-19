@@ -163,6 +163,139 @@ If you can't explain it, you don't get it yet.
 
 ---
 
+## 🎬 Manning Course Integration
+
+This tool is **directly mapped to Sebastian Raschka's "Build a Large Language Model (from Scratch)"** video series (first 20 videos).
+
+### How It Works
+
+**Instead of passively watching videos → You build alongside Sebastian**
+
+1. **Watch a video** (e.g., "Tokenizing Text")
+2. **Complete the challenge** (Build a Text Tokenizer)
+3. **Review flashcards** (Reinforce key concepts)
+4. **Teach it back** (Prove you understand)
+5. **Earn XP & level up** (Track progress)
+
+### The Mapping
+
+📺 **[Watch the Playlist](https://www.youtube.com/playlist?list=PLQRyiBCWmqp5twpd8Izmaxu5XRkxd5yC-)**  
+📖 **[Read the Content Map](docs/manning-content-map.md)**
+
+#### Foundation Tier (Videos 1-4)
+- ✅ **Challenge 1:** Python Environment Setup (25 XP)
+- ✅ **Challenge 2:** Build a Text Tokenizer (50 XP) → Videos 2-3
+- ✅ **Challenge 3:** Add Special Tokens (35 XP) → Video 4
+
+#### Intermediate Tier (Videos 5-12)
+- ✅ **Challenge 4:** Implement Byte Pair Encoding (75 XP) → Video 5
+- ✅ **Challenge 5:** Create Training Data with Sliding Window (50 XP) → Video 6
+- ✅ **Challenge 6:** Build Token Embedding Layer (60 XP) → Video 7
+- ✅ **Challenge 7:** Add Positional Encodings (60 XP) → Video 8
+- ✅ **Challenge 8:** Build Self-Attention Mechanism (100 XP) → Videos 9-10
+- ✅ **Challenge 9:** Create Self-Attention Class (70 XP) → Videos 11-12
+
+#### Advanced Tier (Videos 13-20)
+- ✅ **Challenge 10:** Implement Causal Attention Masking (75 XP) → Video 13
+- ✅ **Challenge 11:** Add Dropout to Attention (40 XP) → Video 14
+- ✅ **Challenge 12:** Build Causal Self-Attention Class (80 XP) → Video 15
+- ✅ **Challenge 13:** Stack Multiple Attention Layers (70 XP) → Video 16
+- ✅ **Challenge 14:** Implement Multi-Head Attention (100 XP) → Video 17
+- ✅ **Challenge 15:** Code Complete GPT Architecture (150 XP) → Video 18
+- ✅ **Challenge 16:** Add Layer Normalization (60 XP) → Video 19
+- ✅ **Challenge 17:** Build Feed-Forward Network with GELU (70 XP) → Video 20
+
+**Total:** 1,270 XP across 17 challenges mapped to 20 videos
+
+### What You Get
+
+✅ **30 Flashcards** covering all key concepts from videos 1-20  
+✅ **17 Hands-on Challenges** - code what Sebastian teaches  
+✅ **Detailed Content Map** - which videos cover which topics  
+✅ **Progress Tracking** - see exactly where you are in the course  
+✅ **Spaced Repetition** - retain concepts long-term  
+
+### Your Learning Path
+
+```
+Week 1: Foundation (Videos 1-4)
+  → Set up environment
+  → Build tokenizer
+  → Add special tokens
+  → Master the basics
+  → Earn: 110 XP
+
+Week 2-3: Intermediate Part 1 (Videos 5-8)
+  → Implement BPE
+  → Create training data loader
+  → Build embeddings
+  → Add positional encoding
+  → Earn: 245 XP
+
+Week 3-4: Intermediate Part 2 (Videos 9-12)
+  → Build self-attention from scratch
+  → Package into reusable class
+  → Understand transformer mechanics
+  → Earn: 170 XP
+
+Week 5-6: Advanced Part 1 (Videos 13-16)
+  → Add causal masking (GPT-style)
+  → Implement dropout
+  → Stack deep networks
+  → Earn: 265 XP
+
+Week 7-8: Advanced Part 2 (Videos 17-20)
+  → Build multi-head attention
+  → Code complete GPT architecture
+  → Add LayerNorm and FFN
+  → Earn: 480 XP
+```
+
+**8 weeks = Complete LLM built from scratch + 1,270 XP**
+
+### Why This Beats Just Watching
+
+**Traditional approach:**
+- Watch 20 videos (10-15 hours)
+- Take notes
+- Forget 80% in 2 weeks
+- Never build anything
+
+**Learning Accelerator approach:**
+- Watch + Build simultaneously (45-60 hours total)
+- Code every concept immediately
+- Review flashcards daily
+- **End with a working GPT model YOU built**
+
+### Getting Started with Manning Content
+
+1. **Start the server:** `npm start`
+2. **Open dashboard:** http://localhost:3000
+3. **Click "Challenges"** → See all 17 Manning challenges
+4. **Start with Challenge 1** → Python Environment Setup
+5. **Watch Video 1** → Then complete the challenge
+6. **Review flashcards** → Reinforce what you learned
+7. **Repeat** for all 20 videos
+
+### Resources
+
+- 📺 **[YouTube Playlist](https://www.youtube.com/playlist?list=PLQRyiBCWmqp5twpd8Izmaxu5XRkxd5yC-)**
+- 📖 **[Manning Book](https://www.manning.com/books/build-a-large-language-model-from-scratch)**
+- 💻 **[Sebastian's GitHub](https://github.com/rasbt/LLMs-from-scratch)**
+- 🗺️ **[Content Map](docs/manning-content-map.md)** - Detailed video → challenge mapping
+
+### Pro Tips
+
+1. **Code along with videos** - Pause and implement as Sebastian explains
+2. **Review flashcards daily** - 5-10 cards takes 5 minutes
+3. **Complete challenges in order** - Each builds on previous
+4. **Test everything** - Don't move on until your code works
+5. **Use teach-back** - Explain concepts in your own words
+6. **Join communities** - Sebastian is active on Twitter/Discord
+7. **Reference the book** - Videos complement written content
+
+---
+
 ## Integration with Goals
 
 ### "10 Products in 100 Days"

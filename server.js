@@ -16,6 +16,8 @@ app.use(express.static('public'));
 const PROGRESS_FILE = path.join(__dirname, 'data', 'progress.json');
 const QUIZ_FILE = path.join(__dirname, 'data', 'quiz-state.json');
 const CHALLENGES_FILE = path.join(__dirname, 'data', 'challenges.json');
+const MANNING_CHALLENGES_FILE = path.join(__dirname, 'data', 'manning-challenges.json');
+const FLASHCARDS_FILE = path.join(__dirname, 'data', 'flashcards.json');
 
 // Ensure data directory exists
 if (!fs.existsSync(path.join(__dirname, 'data'))) {
@@ -36,15 +38,45 @@ function initDataFiles() {
   }
 
   if (!fs.existsSync(QUIZ_FILE)) {
-    const initialQuiz = {
-      cards: [],
-      stats: { total: 0, mastered: 0, learning: 0, new: 0 }
-    };
+    let initialQuiz;
+    
+    // Try to load Manning flashcards
+    if (fs.existsSync(FLASHCARDS_FILE)) {
+      const flashcardsData = JSON.parse(fs.readFileSync(FLASHCARDS_FILE, 'utf8'));
+      // Initialize cards with SM-2 algorithm defaults
+      initialQuiz = {
+        cards: flashcardsData.cards.map(card => ({
+          ...card,
+          repetitions: 0,
+          interval: 0,
+          easeFactor: 2.5,
+          nextReview: new Date().toISOString(),
+          created: new Date().toISOString()
+        })),
+        stats: flashcardsData.stats
+      };
+      console.log(`✅ Loaded ${flashcardsData.cards.length} Manning flashcards`);
+    } else {
+      initialQuiz = {
+        cards: [],
+        stats: { total: 0, mastered: 0, learning: 0, new: 0 }
+      };
+    }
     fs.writeFileSync(QUIZ_FILE, JSON.stringify(initialQuiz, null, 2));
   }
 
+  // Load Manning challenges if available, otherwise use defaults
   if (!fs.existsSync(CHALLENGES_FILE)) {
-    const challenges = [
+    let challenges;
+    
+    // Try to load Manning challenges first
+    if (fs.existsSync(MANNING_CHALLENGES_FILE)) {
+      challenges = JSON.parse(fs.readFileSync(MANNING_CHALLENGES_FILE, 'utf8'));
+      console.log('✅ Loaded Manning LLM challenges');
+    } else {
+      // Fallback to default challenges
+      console.log('⚠️  Manning challenges not found, using defaults');
+      challenges = [
       {
         id: 'tokenization',
         title: 'Build a Mini Tokenizer',
@@ -151,7 +183,30 @@ function initDataFiles() {
         winCondition: 'System saves 30%+ on API costs while maintaining quality'
       }
     ];
+    }
     fs.writeFileSync(CHALLENGES_FILE, JSON.stringify(challenges, null, 2));
+  }
+
+  // Initialize flashcards from flashcards.json if available
+  if (!fs.existsSync(QUIZ_FILE) && fs.existsSync(FLASHCARDS_FILE)) {
+    const flashcardsData = JSON.parse(fs.readFileSync(FLASHCARDS_FILE, 'utf8'));
+    const initialQuiz = {
+      cards: flashcardsData.cards.map(card => ({
+        ...card,
+        repetitions: 0,
+        interval: 0,
+        easeFactor: 2.5,
+        nextReview: new Date().toISOString(),
+        created: new Date().toISOString()
+      })),
+      stats: {
+        total: flashcardsData.cards.length,
+        mastered: 0,
+        learning: 0,
+        new: flashcardsData.cards.length
+      }
+    };
+    fs.writeFileSync(QUIZ_FILE, JSON.stringify(initialQuiz, null, 2));
   }
 }
 

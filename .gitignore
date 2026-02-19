@@ -6,8 +6,8 @@ node_modules/
 # User data (generated at runtime)
 data/progress.json
 data/quiz-state.json
-data/challenges.json
 
 # But keep source data files
 !data/flashcards.json
 !data/manning-*.json
+!data/lesson-content.json

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "self-attention",
+    "level": 6,
+    "title": "The Focus Mechanism",
+    "subtitle": "How Models Decide What Matters",
+    "emoji": "🎯",
+    "story": "You're reading a detective novel. When you see 'The butler did it,' your brain doesn't treat all words equally. It focuses HARD on 'butler' and 'did it,' while barely registering 'The.' This selective focus? That's attention. GPT does the same thing—but mathematically. Every word looks at every other word and decides: 'How much should I care about you right now?' The answer determines understanding.",
+    "hook": "If embeddings give words meaning, attention gives them context.",
+    "concept": "Self-attention is how each word in a sequence figures out which other words are important for understanding it. When processing 'The cat sat on the mat,' the word 'sat' pays HEAVY attention to 'cat' (who's sitting?) and 'mat' (where?), but ignores 'the.' It's computed using three learned transformations: Query (what am I looking for?), Key (what do I offer?), and Value (what do I contribute?).",
+    "analogy": "Imagine a party where everyone has a question they're asking (Query), skills they can help with (Key), and actual knowledge to share (Value). You ask 'Who knows about gardening?' (your query). People with 'gardening' in their skills (keys) raise their hands. The attention weight is how strongly they match. Then you listen to what they say (values), weighted by how relevant they are.",
+    "visual": "Self-Attention Computation:\n\nInput: [cat, sat, on, mat]\n         ↓\n    Embeddings\n         ↓\n    Q = W_q × Input  (What am I looking for?)\n    K = W_k × Input  (What do I offer?)\n    V = W_v × Input  (What info do I have?)\n         ↓\n    Scores = Q × K^T  (How much do I care about each word?)\n         ↓\n    Weights = softmax(Scores)  (Normalize to probabilities)\n         ↓\n    Output = Weights × V  (Mix values by importance)\n\nFor 'sat':\n  - High attention to 'cat' (subject)\n  - High attention to 'mat' (location)\n  - Low attention to 'on', 'the' (function words)",
+    "interactive": [
+      {
+        "type": "code",
+        "title": "Simple Self-Attention",
+        "description": "Compute attention for a single word",
+        "code": "import torch\nimport torch.nn.functional as F\n\n# Input: 3 words, 4-dim embeddings\ninputs = torch.tensor([\n    [1.0, 0.0, 0.0, 0.0],  # 'cat'\n    [0.0, 1.0, 0.0, 0.0],  # 'sat'\n    [0.0, 0.0, 1.0, 0.0]   # 'mat'\n])\n\n# Learn Q, K, V transformations\nd_model = 4\nW_q = torch.nn.Linear(d_model, d_model, bias=False)\nW_k = torch.nn.Linear(d_model, d_model, bias=False)\nW_v = torch.nn.Linear(d_model, d_model, bias=False)\n\n# Compute Q, K, V\nQ = W_q(inputs)  # Shape: (3, 4)\nK = W_k(inputs)\nV = W_v(inputs)\n\n# Attention scores\nscores = Q @ K.T  # Shape: (3, 3)\nprint('Raw scores:')\nprint(scores)\n\n# Attention weights (softmax)\nweights = F.softmax(scores / (d_model ** 0.5), dim=-1)\nprint('\\nAttention weights:')\nprint(weights)\n# Each row: how much word[i] attends to all words\n\n# Output\noutput = weights @ V\nprint('\\nOutput (context-aware embeddings):')\nprint(output)",
+        "explanation": "This shows the core attention mechanism: Q×K^T gives scores, softmax normalizes them, then weights×V produces context-aware representations."
+      }
+    ],
+    "keyPoints": [
+      "Self-attention lets each word look at ALL other words in context",
+      "Query-Key-Value (QKV) formulation: Q asks, K matches, V provides",
+      "Attention scores are computed as Q×K^T, then softmax-normalized",
+      "Output is a weighted sum of Values based on attention weights",
+      "This is O(n²) in sequence length—expensive but powerful"
+    ],
+    "realWorld": [
+      "ChatGPT uses multi-layer self-attention to understand your question in context",
+      "Machine translation: 'bank' (river vs money) attention to surrounding words clarifies meaning",
+      "Code completion: attends to variable definitions earlier in the file",
+      "Sentiment analysis: focuses on adjectives and negations ('not good')"
+    ],
+    "challenge": {
+      "unlocks": "attention-visualizer",
+      "preview": "Build a tool that visualizes attention weights for any sentence—see what words GPT focuses on!",
+      "xp": 150
+    },
+    "easterEgg": "The 'Attention Is All You Need' paper (2017) that introduced transformers was initially rejected from a major conference. It's now the most cited AI paper of the decade with 100,000+ citations."
+  },
+  {
+    "id": "multi-head-attention",
+    "level": 7,
+    "title": "Parallel Perspectives",
+    "subtitle": "Why One Attention Head Isn't Enough",
+    "emoji": "👁️",
+    "story": "You're a movie critic. When analyzing a film, you don't just focus on ONE aspect—you simultaneously track: plot coherence, cinematography, acting, sound design, and pacing. Each is a different 'attention head' looking at the same movie through a different lens. Multi-head attention does this for text: one head focuses on grammar, another on semantic meaning, another on long-range dependencies. GPT-4 has 96 heads. That's 96 parallel critics analyzing every sentence.",
+    "hook": "One perspective sees details. Many perspectives see truth.",
+    "concept": "Multi-head attention runs multiple self-attention operations in parallel, each with different learned QKV matrices. It's like having a team of specialists all analyzing the same sentence simultaneously—one focuses on syntax, another on entities, another on sentiment. The outputs are concatenated and mixed. GPT-3 has 96 attention heads per layer. GPT-4 has even more. Each head can learn to specialize in different linguistic patterns.",
+    "analogy": "Think of a crime scene with multiple investigators. The forensics expert (head 1) focuses on physical evidence. The psychologist (head 2) analyzes suspect behavior. The financial investigator (head 3) traces money. Each sees different patterns in the same data. Multi-head attention does this for language—different heads notice different patterns (syntax, semantics, coreference).",
+    "visual": "Multi-Head Attention:\n\nInput Embedding (d=512)\n        |\n    ┌───┴───┬───────┬───────┐\n    │       │       │       │\n  Head1   Head2   Head3  ...Head8\n  (d=64)  (d=64)  (d=64)   (d=64)\n    │       │       │       │\n   Q,K,V   Q,K,V   Q,K,V   Q,K,V\n    │       │       │       │\n  Attn1   Attn2   Attn3   Attn8\n    │       │       │       │\n    └───┬───┴───────┴───────┘\n        │\n   Concatenate\n        │\n    Linear(512)\n        │\n     Output\n\nEach head sees the same input but learns different patterns:\n- Head 1: Subject-verb agreement\n- Head 2: Coreference (pronouns)\n- Head 3: Long-range dependencies\n- Head 4: Semantic similarity",
+    "interactive": [
+      {
+        "type": "code",
+        "title": "Multi-Head Attention Implementation",
+        "description": "Run 8 attention heads in parallel",
+        "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass MultiHeadAttention(nn.Module):\n    def __init__(self, d_model=512, num_heads=8):\n        super().__init__()\n        assert d_model % num_heads == 0\n        \n        self.d_model = d_model\n        self.num_heads = num_heads\n        self.d_k = d_model // num_heads  # 512 / 8 = 64\n        \n        # Separate Q,K,V for each head\n        self.W_q = nn.Linear(d_model, d_model)\n        self.W_k = nn.Linear(d_model, d_model)\n        self.W_v = nn.Linear(d_model, d_model)\n        self.W_o = nn.Linear(d_model, d_model)  # Output projection\n    \n    def split_heads(self, x, batch_size):\n        # Split into num_heads\n        # (batch, seq_len, d_model) → (batch, num_heads, seq_len, d_k)\n        x = x.view(batch_size, -1, self.num_heads, self.d_k)\n        return x.transpose(1, 2)\n    \n    def forward(self, x):\n        batch_size, seq_len, d_model = x.shape\n        \n        # Generate Q, K, V\n        Q = self.split_heads(self.W_q(x), batch_size)\n        K = self.split_heads(self.W_k(x), batch_size)\n        V = self.split_heads(self.W_v(x), batch_size)\n        \n        # Scaled dot-product attention (per head)\n        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.d_k ** 0.5)\n        attn_weights = F.softmax(scores, dim=-1)\n        attn_output = torch.matmul(attn_weights, V)\n        \n        # Concatenate heads\n        attn_output = attn_output.transpose(1, 2).contiguous()\n        attn_output = attn_output.view(batch_size, seq_len, d_model)\n        \n        # Final linear projection\n        output = self.W_o(attn_output)\n        return output\n\n# Example usage\nmodel = MultiHeadAttention(d_model=512, num_heads=8)\nx = torch.randn(1, 10, 512)  # (batch=1, seq_len=10, d_model=512)\noutput = model(x)\nprint(f'Output shape: {output.shape}')  # (1, 10, 512)",
+        "explanation": "This splits the model dimension across heads, runs attention in parallel, then concatenates results. Each head learns different patterns independently."
+      }
+    ],
+    "keyPoints": [
+      "Multiple attention heads run in parallel, each with own Q,K,V matrices",
+      "Each head captures different linguistic patterns (syntax, semantics, etc.)",
+      "Heads are split by dimension: d_model / num_heads per head",
+      "Outputs concatenated and projected back to d_model",
+      "GPT-3 uses 96 heads; GPT-4 likely more—massive parallelism"
+    ],
+    "realWorld": [
+      "GPT-4's 96 heads allow it to track subject-verb agreement AND sentiment AND entity relationships simultaneously",
+      "One head might focus on negations ('not happy' vs 'happy'), another on pronouns ('he' refers to 'John')",
+      "In code generation, different heads track variable scope, syntax, and documentation",
+      "Translation models use some heads for source language, others for target language structure"
+    ],
+    "challenge": {
+      "unlocks": "attention-head-analyzer",
+      "preview": "Build a tool that visualizes what each attention head learns—see specialization emerge!",
+      "xp": 150
+    },
+    "easterEgg": "Researchers found that some attention heads in GPT learn to detect specific patterns without being told: one head specializes in detecting Python function definitions, another in finding matching parentheses, another in tracking quote pairs. They discovered these patterns by accident after training."
+  }
+]

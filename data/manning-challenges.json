@@ -7,9 +7,15 @@
     "xp": 100,
     "tier": "foundation",
     "manningChapters": ["2.2", "2.3", "2.4", "2.5"],
-    "manningVideos": ["Iuwqyddco", "5uEwiN_9hJk", "jA7kx6cTKVE", "ePfY7P0iNik"],
+    "manningVideos": [2, 3, 4, 5],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=Iuwqyddco",
+      "https://www.youtube.com/watch?v=5uEwiN_9hJk",
+      "https://www.youtube.com/watch?v=jA7kx6cTKVE",
+      "https://www.youtube.com/watch?v=ePfY7P0iNik"
+    ],
     "tasks": [
-      "Watch Manning 2.2-2.5 (44 min total)",
+      "Watch Manning videos 2-5 (44 min total)",
       "Implement basic text tokenizer (split by whitespace + punctuation)",
       "Build token-to-ID vocabulary mapping",
       "Add special tokens (<|endoftext|>, <|unk|>)",
@@ -17,64 +23,56 @@
       "Test on real text samples and compare with tiktoken"
     ],
     "winCondition": "Tokenizer handles any text input, outputs token IDs, BPE reduces vocab size by 30%+",
-    "deliverable": "tools/tokenizer.py with test suite"
+    "deliverable": "tokenizer.py with test suite showing BPE compression"
   },
   {
-    "id": "embeddings-and-positions",
-    "title": "Build Token + Position Embeddings",
-    "description": "Implement embedding layers following Manning Ch 2.7-2.8",
-    "timeEstimate": "2-3 hours",
-    "xp": 80,
+    "id": "embeddings-and-dataloader",
+    "title": "Build Embeddings + Data Pipeline",
+    "description": "Implement embedding layers and training data loader following Manning Ch 2.6-2.8",
+    "timeEstimate": "3-4 hours",
+    "xp": 100,
     "tier": "foundation",
-    "manningChapters": ["2.7", "2.8"],
-    "manningVideos": ["x2tYF_DHpgc", "EOU366BvhuA"],
-    "tasks": [
-      "Watch Manning 2.7-2.8 (21 min total)",
-      "Implement token embedding layer (vocab_size → d_model)",
-      "Implement positional encoding (absolute positions)",
-      "Combine token + position embeddings",
-      "Visualize embeddings in 2D using PCA/t-SNE",
-      "Test: similar words should cluster together"
+    "manningChapters": ["2.6", "2.7", "2.8"],
+    "manningVideos": [6, 7, 8],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=KA02GeM0pv4",
+      "https://www.youtube.com/watch?v=x2tYF_DHpgc",
+      "https://www.youtube.com/watch?v=EOU366BvhuA"
     ],
-    "winCondition": "Embedding layer converts text to vectors, position info preserved, similar tokens cluster",
-    "deliverable": "embeddings.py + visualization notebook"
-  },
-  {
-    "id": "sliding-window-dataloader",
-    "title": "Build Training Data Pipeline",
-    "description": "Create sliding window data loader following Manning Ch 2.6",
-    "timeEstimate": "2-3 hours",
-    "xp": 75,
-    "tier": "foundation",
-    "manningChapters": ["2.6"],
-    "manningVideos": ["KA02GeM0pv4"],
     "tasks": [
-      "Watch Manning 2.6 (23 min)",
+      "Watch Manning videos 6-8 (44 min total)",
       "Implement sliding window data sampler",
-      "Create batched data loader with PyTorch DataLoader",
-      "Handle context length and stride",
-      "Test on real text corpus (e.g., Shakespeare)",
-      "Profile memory usage and batch speed"
+      "Create PyTorch DataLoader with batching",
+      "Build token embedding layer (vocab_size → d_model)",
+      "Implement positional encoding",
+      "Combine token + position embeddings",
+      "Visualize embeddings with t-SNE"
     ],
-    "winCondition": "DataLoader produces batches of (input, target) sequences efficiently",
-    "deliverable": "data_loader.py with configurable window size"
+    "winCondition": "DataLoader yields training batches, embeddings convert text to vectors with position info",
+    "deliverable": "data_loader.py + embeddings.py + visualization notebook"
   },
   {
     "id": "self-attention-mechanism",
     "title": "Implement Self-Attention from Scratch",
-    "description": "Build attention mechanism following Manning Ch 3.3-3.4",
+    "description": "Build the core attention mechanism following Manning Ch 3.3-3.4",
     "timeEstimate": "4-5 hours",
     "xp": 150,
     "tier": "intermediate",
     "manningChapters": ["3.3.1", "3.4", "3.4.1", "3.4.2"],
-    "manningVideos": ["2rluVS_ap9M", "Dj1fjQNQl2g", "2-PYMkJ0OxY", "NcaoYngcF9E"],
+    "manningVideos": [9, 10, 11, 12],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=2rluVS_ap9M",
+      "https://www.youtube.com/watch?v=Dj1fjQNQl2g",
+      "https://www.youtube.com/watch?v=2-PYMkJ0OxY",
+      "https://www.youtube.com/watch?v=NcaoYngcF9E"
+    ],
     "tasks": [
-      "Watch Manning 3.3-3.4 (81 min total - core concept!)",
-      "Implement Q, K, V projections",
-      "Calculate attention scores (Q @ K^T)",
+      "Watch Manning videos 9-12 (81 min - core concept!)",
+      "Implement Q, K, V weight matrices",
+      "Calculate attention scores (Q @ K^T / √d_k)",
       "Apply softmax to get attention weights",
-      "Multiply weights by values",
-      "Create SelfAttention class",
+      "Compute weighted sum of values",
+      "Create SelfAttention PyTorch class",
       "Visualize attention patterns on sample text"
     ],
     "winCondition": "Attention mechanism works, visualization shows which tokens attend to which",
@@ -83,216 +81,78 @@
   {
     "id": "causal-attention-mask",
     "title": "Add Causal Masking to Attention",
-    "description": "Implement masked attention following Manning Ch 3.5",
+    "description": "Implement masked attention for autoregressive generation following Manning Ch 3.5",
     "timeEstimate": "2-3 hours",
     "xp": 100,
     "tier": "intermediate",
     "manningChapters": ["3.5.1", "3.5.2", "3.5.3"],
-    "manningVideos": ["-dk_Ewo1FGo", "DixrLzbWVtM", "v0rGOGe9N_I"],
+    "manningVideos": [13, 14, 15],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=-dk_Ewo1FGo",
+      "https://www.youtube.com/watch?v=DixrLzbWVtM",
+      "https://www.youtube.com/watch?v=v0rGOGe9N_I"
+    ],
     "tasks": [
-      "Watch Manning 3.5 (26 min)",
-      "Create causal mask (upper triangular)",
-      "Apply mask before softmax",
-      "Add dropout to attention weights",
+      "Watch Manning videos 13-15 (26 min)",
+      "Create causal mask (upper triangular matrix)",
+      "Apply mask before softmax (set future → -inf)",
+      "Add dropout to attention weights (regularization)",
       "Build CausalSelfAttention class",
-      "Test: future tokens should be masked out",
-      "Compare masked vs unmasked attention patterns"
+      "Test: verify token i cannot see tokens j > i",
+      "Compare masked vs unmasked attention heatmaps"
     ],
     "winCondition": "Model cannot peek at future tokens, attention visualization confirms masking",
-    "deliverable": "causal_attention.py with mask visualization"
+    "deliverable": "causal_attention.py with mask visualization comparison"
   },
   {
     "id": "multi-head-attention",
     "title": "Build Multi-Head Attention",
-    "description": "Implement multi-head attention following Manning Ch 3.6",
+    "description": "Implement parallel attention heads following Manning Ch 3.6",
     "timeEstimate": "3-4 hours",
     "xp": 125,
     "tier": "intermediate",
     "manningChapters": ["3.6.1", "3.6.2"],
-    "manningVideos": ["hzL0qlZq4Us", "zJyrNEpap90"],
+    "manningVideos": [16, 17],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=hzL0qlZq4Us",
+      "https://www.youtube.com/watch?v=zJyrNEpap90"
+    ],
     "tasks": [
-      "Watch Manning 3.6 (29 min)",
-      "Implement parallel single-head attention layers",
-      "Concatenate multi-head outputs",
-      "Add output projection",
+      "Watch Manning videos 16-17 (29 min)",
+      "Split embeddings across multiple heads (e.g., 8 heads)",
+      "Run parallel attention computations per head",
+      "Concatenate head outputs",
+      "Add final output projection layer",
       "Test with different head counts (4, 8, 12)",
-      "Visualize what different heads learn",
-      "Profile compute/memory usage"
+      "Visualize what different heads learn to attend to"
     ],
     "winCondition": "Multi-head attention works, different heads show different attention patterns",
-    "deliverable": "multi_head_attention.py + head analysis notebook"
+    "deliverable": "multi_head_attention.py + per-head analysis notebook"
   },
   {
-    "id": "transformer-block",
-    "title": "Build Complete Transformer Block",
-    "description": "Assemble full transformer layer following Manning Ch 4.1-4.5",
-    "timeEstimate": "4-5 hours",
-    "xp": 150,
-    "tier": "advanced",
-    "manningChapters": ["4.1", "4.2", "4.3", "4.4", "4.5"],
-    "manningVideos": ["8K1yCsO1CsU", "QKirqpM3bfk", "IMWbSrTfrC0", "PnIF7GdWps", "zCPoalAsudQ"],
-    "tasks": [
-      "Watch Manning 4.1-4.5 (76 min)",
-      "Implement LayerNorm",
-      "Build FeedForward network with GELU",
-      "Add residual connections",
-      "Combine: LayerNorm → Attention → Add → LayerNorm → FFN → Add",
-      "Build TransformerBlock class",
-      "Test forward pass with dummy data"
-    ],
-    "winCondition": "TransformerBlock processes sequences correctly, gradients flow through residuals",
-    "deliverable": "transformer_block.py with tests"
-  },
-  {
-    "id": "gpt-architecture",
-    "title": "Build Full GPT Model",
-    "description": "Stack transformer blocks into GPT following Manning Ch 4.6",
-    "timeEstimate": "3-4 hours",
-    "xp": 175,
-    "tier": "advanced",
-    "manningChapters": ["4.6"],
-    "manningVideos": ["EegLikdHKDE"],
-    "tasks": [
-      "Watch Manning 4.6 (13 min)",
-      "Stack N transformer blocks",
-      "Add token + position embeddings at input",
-      "Add final LayerNorm + language modeling head",
-      "Implement GPT model class",
-      "Count parameters (should match GPT-2 sizes)",
-      "Test forward pass and output shapes"
-    ],
-    "winCondition": "GPT model runs, parameter count matches target (124M for GPT-2 small)",
-    "deliverable": "gpt_model.py with architecture summary"
-  },
-  {
-    "id": "text-generation",
-    "title": "Implement Text Generation",
-    "description": "Build sampling and generation following Manning Ch 4.7",
+    "id": "layer-norm-and-ffn",
+    "title": "Build LayerNorm + FeedForward Network",
+    "description": "Implement transformer building blocks following Manning Ch 4.1-4.3",
     "timeEstimate": "3-4 hours",
     "xp": 125,
     "tier": "advanced",
-    "manningChapters": ["4.7"],
-    "manningVideos": ["JUbbwU5lW98"],
-    "tasks": [
-      "Watch Manning 4.7 (18 min)",
-      "Implement greedy decoding",
-      "Add temperature sampling",
-      "Implement top-k sampling",
-      "Implement top-p (nucleus) sampling",
-      "Build interactive generation demo",
-      "Compare sampling strategies on same prompt"
+    "manningChapters": ["4.1", "4.2", "4.3"],
+    "manningVideos": [18, 19, 20],
+    "videoLinks": [
+      "https://www.youtube.com/watch?v=8K1yCsO1CsU",
+      "https://www.youtube.com/watch?v=QKirqpM3bfk",
+      "https://www.youtube.com/watch?v=IMWbSrTfrC0"
     ],
-    "winCondition": "Model generates coherent text, different sampling methods produce different outputs",
-    "deliverable": "generate.py + web demo"
-  },
-  {
-    "id": "training-loop",
-    "title": "Train GPT from Scratch",
-    "description": "Implement full training pipeline following Manning Ch 5.1-5.2",
-    "timeEstimate": "5-6 hours",
-    "xp": 200,
-    "tier": "expert",
-    "manningChapters": ["5.1.1", "5.1.2", "5.1.3", "5.2"],
-    "manningVideos": ["qfKfX0CZyw0", "8WrV0I7sfpk", "A2N6djHKzfI", "117SQ2vf6dg"],
     "tasks": [
-      "Watch Manning 5.1-5.2 (97 min)",
-      "Implement cross-entropy loss calculation",
-      "Build training loop with optimizer (AdamW)",
-      "Add validation loop and loss tracking",
-      "Implement learning rate scheduling",
-      "Train small model on Shakespeare or TinyStories",
-      "Plot training/validation curves",
-      "Save checkpoints"
+      "Watch Manning videos 18-20 (52 min)",
+      "Implement LayerNorm (normalize across embedding dimension)",
+      "Add learnable scale and bias parameters",
+      "Build 2-layer FFN: d_model → 4*d_model → d_model",
+      "Use GELU activation (not ReLU)",
+      "Add dropout for regularization",
+      "Test components individually before integration"
     ],
-    "winCondition": "Model trains successfully, validation loss decreases, generates coherent text",
-    "deliverable": "train.py + trained model checkpoint + training curves"
-  },
-  {
-    "id": "advanced-sampling",
-    "title": "Master Sampling Strategies",
-    "description": "Implement advanced generation techniques following Manning Ch 5.3",
-    "timeEstimate": "2-3 hours",
-    "xp": 100,
-    "tier": "expert",
-    "manningChapters": ["5.3.1", "5.3.2", "5.3.3"],
-    "manningVideos": ["ORUMDP3fEQ", "aW6bk8oAh9g", "GhpKXv6LNXg"],
-    "tasks": [
-      "Watch Manning 5.3 (33 min)",
-      "Implement temperature scaling with sweeps (0.1 to 2.0)",
-      "Build configurable top-k sampler",
-      "Build configurable top-p sampler",
-      "Create comparison dashboard",
-      "Test on different prompts (creative vs factual)",
-      "Document when to use each strategy"
-    ],
-    "winCondition": "Interactive tool shows how sampling parameters affect generation quality",
-    "deliverable": "sampling_lab.py + comparison notebook"
-  },
-  {
-    "id": "model-management",
-    "title": "Load & Save Models (PyTorch)",
-    "description": "Master weight management following Manning Ch 5.4-5.5",
-    "timeEstimate": "2-3 hours",
-    "xp": 75,
-    "tier": "expert",
-    "manningChapters": ["5.4", "5.5"],
-    "manningVideos": ["i7QmQl2FK-g", "glpWXw9dHWY"],
-    "tasks": [
-      "Watch Manning 5.4-5.5 (24 min)",
-      "Implement save_checkpoint() function",
-      "Implement load_checkpoint() function",
-      "Download OpenAI GPT-2 weights",
-      "Map OpenAI weight names to your architecture",
-      "Load pretrained GPT-2 into your model",
-      "Verify outputs match OpenAI's model"
-    ],
-    "winCondition": "Can save/load checkpoints, successfully load OpenAI GPT-2 weights",
-    "deliverable": "model_io.py + weight loading script"
-  },
-  {
-    "id": "classification-finetuning",
-    "title": "Fine-tune for Classification",
-    "description": "Adapt GPT for spam detection following Manning Ch 6",
-    "timeEstimate": "5-6 hours",
-    "xp": 200,
-    "tier": "mastery",
-    "manningChapters": ["6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8"],
-    "manningVideos": ["t_0XAf_SZmo", "m4qiVQHp9Do", "wq9VdwBHl0w", "PTzHj5UmP9Y", "4Gjrtw2vQgU", "DfCbtGgY3cs", "7Okki_IhSSw"],
-    "tasks": [
-      "Watch Manning Ch 6 (141 min - big chapter!)",
-      "Prepare spam dataset (SMS Spam Collection or emails)",
-      "Create classification data loader",
-      "Load pretrained GPT weights",
-      "Add classification head (last token → binary output)",
-      "Implement classification loss (BCE or cross-entropy)",
-      "Fine-tune model on spam data",
-      "Evaluate accuracy on test set",
-      "Build inference API"
-    ],
-    "winCondition": "Model achieves 95%+ accuracy on spam detection, deployed as API endpoint",
-    "deliverable": "spam_classifier.py + API + evaluation report"
-  },
-  {
-    "id": "instruction-finetuning",
-    "title": "Instruction Fine-tune GPT",
-    "description": "Turn GPT into instruction-following model following Manning Ch 7",
-    "timeEstimate": "6-7 hours",
-    "xp": 250,
-    "tier": "mastery",
-    "manningChapters": ["7.2", "7.3", "7.4", "7.5", "7.6", "7.7", "7.8"],
-    "manningVideos": ["epsaFNREHos", "tDQ7Gbh9_3w", "nTp9AP2xra4", "xLexMENUMWc", "9RP6uDGAzuQ", "W7yaec7jCPY", "yjrk_lsx5Fo"],
-    "tasks": [
-      "Watch Manning Ch 7 (121 min)",
-      "Prepare instruction dataset (Alpaca or similar)",
-      "Format: [instruction, input, output] triplets",
-      "Build instruction data loader",
-      "Load pretrained GPT",
-      "Fine-tune on instruction-response pairs",
-      "Generate responses to test instructions",
-      "Evaluate response quality (human eval + metrics)",
-      "Compare: base model vs fine-tuned"
-    ],
-    "winCondition": "Model follows instructions accurately, quality comparable to base GPT-3.5",
-    "deliverable": "instruction_model.py + evaluation suite + demo"
+    "winCondition": "LayerNorm stabilizes activations, FFN increases model capacity",
+    "deliverable": "layer_norm.py + feed_forward.py with unit tests"
   }
 ]

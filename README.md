@@ -66,13 +66,16 @@ Gamified skill tree:
 
 **This tool is now optimized for Sebastian Raschka's Manning video series!**
 
-✅ **14 Challenges** mapped directly to the 47-video playlist  
-✅ **50 Flashcards** covering all key concepts from the book  
+✅ **6 Challenges** mapped to the first 20 videos (foundation + intermediate)  
+✅ **30 Flashcards** covering core concepts from Ch 2-3  
 ✅ **Complete content mapping** - know exactly which videos to watch for each challenge
+
+**Coverage:** Videos 1-20 (Ch 2: Tokenization, Ch 3: Attention, Ch 4.1-4.3: Architecture Basics)  
+**Remaining 27 videos** (training, generation, fine-tuning) can be added in a future update.
 
 ### Why This Integration Exists
 
-Watching 47 videos (13+ hours) is passive. This tool makes it **active learning**:
+Watching 20 videos (5+ hours) is passive. This tool makes it **active learning**:
 - Each challenge = build something real from the videos
 - Flashcards = retain concepts long-term via spaced repetition
 - Progress tracking = stay motivated with XP/streaks
@@ -110,9 +113,11 @@ http://localhost:3000
 
 ### 4. Start with Foundation Tier
 Your first challenge: **Build Your Own Tokenizer**
-- Watch Manning Ch 2.2-2.5 (44 min)
+- Watch Manning videos 2-5 (44 min)
 - Build a working tokenizer with BPE
 - Compare with OpenAI's tiktoken
+
+**Scope:** These challenges cover videos 1-20 only (foundation and intermediate concepts).
 
 ---
 
@@ -346,62 +351,60 @@ Each challenge = foundation for a product.
 
 ---
 
-## 🎓 Manning Learning Path (11 Weeks)
+## 🎓 Manning Learning Path (4 Weeks)
 
-Follow this path to master the entire Manning series:
+Follow this path to master the foundation and intermediate concepts (videos 1-20):
 
-### Weeks 1-2: Foundation (Tokenization & Embeddings)
-- Challenge 1: Build Your Own Tokenizer (Ch 2.2-2.5)
-- Challenge 2: Token + Position Embeddings (Ch 2.7-2.8)
-- Challenge 3: Training Data Pipeline (Ch 2.6)
-- **Flashcards:** Review 8 foundation cards daily
+### Week 1: Foundation (Tokenization & Embeddings)
+- Challenge 1: Build Your Own Tokenizer (Videos 2-5, Ch 2.2-2.5)
+- Challenge 2: Embeddings + Data Pipeline (Videos 6-8, Ch 2.6-2.8)
+- **Flashcards:** Review 9 foundation cards daily
+- **Time:** ~7-8 hours total
 
-### Weeks 3-4: Intermediate (Attention Mechanisms)
-- Challenge 4: Self-Attention from Scratch (Ch 3.3-3.4) ⭐ **CRITICAL**
-- Challenge 5: Causal Masking (Ch 3.5)
-- Challenge 6: Multi-Head Attention (Ch 3.6)
-- **Flashcards:** Review 9 intermediate cards daily
+### Weeks 2-3: Intermediate (Attention Mechanisms)
+- Challenge 3: Self-Attention from Scratch (Videos 9-12, Ch 3.3-3.4) ⭐ **CRITICAL**
+- Challenge 4: Causal Masking (Videos 13-15, Ch 3.5)
+- Challenge 5: Multi-Head Attention (Videos 16-17, Ch 3.6)
+- **Flashcards:** Review 13 intermediate cards daily
+- **Time:** ~10-12 hours total
 
-### Weeks 5-6: Advanced (GPT Architecture)
-- Challenge 7: Transformer Block (Ch 4.1-4.5)
-- Challenge 8: Full GPT Model (Ch 4.6)
-- Challenge 9: Text Generation (Ch 4.7)
-- **Flashcards:** Review 10 advanced cards daily
+### Week 4: Advanced Basics (Architecture Components)
+- Challenge 6: LayerNorm + FeedForward (Videos 18-20, Ch 4.1-4.3)
+- **Flashcards:** Review all 30 cards
+- **Time:** ~4-5 hours total
 
-### Weeks 7-8: Expert (Training & Generation)
-- Challenge 10: Train GPT from Scratch (Ch 5.1-5.2)
-- Challenge 11: Sampling Strategies (Ch 5.3)
-- Challenge 12: Model I/O (Ch 5.4-5.5)
-- **Flashcards:** Review 13 expert cards daily
-
-### Weeks 9-11: Mastery (Fine-tuning)
-- Challenge 13: Classification Fine-tuning (Ch 6) - *5-6 hours*
-- Challenge 14: Instruction Fine-tuning (Ch 7) - *6-7 hours*
-- **Flashcards:** Review all 50 cards
-
-**Total Time Investment:**
-- Videos: ~14 hours (at 1x speed, recommend 1.5x)
-- Challenges: ~50 hours (hands-on building)
-- Flashcard reviews: ~30 min/day × 77 days = ~40 hours
-- **Grand Total: ~100 hours to master LLM implementation**
+**Total Time Investment (Videos 1-20):**
+- Videos: ~5 hours (at 1x speed, ~3.3 hours at 1.5x)
+- Challenges: ~18-22 hours (hands-on building)
+- Flashcard reviews: ~15 min/day × 28 days = ~7 hours
+- **Grand Total: ~30-35 hours to complete videos 1-20**
 
 ---
 
-## 📊 Content Coverage
+### 🚧 Future Content (Videos 21-47)
 
-The 14 challenges + 50 flashcards cover:
+The remaining 27 videos cover:
+- **Ch 4.4-4.7:** Residual connections, full GPT model, text generation
+- **Ch 5:** Training loops, loss functions, sampling strategies
+- **Ch 6:** Classification fine-tuning
+- **Ch 7:** Instruction fine-tuning
 
-| Topic | Challenges | Flashcards | Manning Chapters |
-|-------|-----------|-----------|------------------|
-| Tokenization | 1 | 4 | Ch 2.2-2.5 |
-| Embeddings | 1 | 3 | Ch 2.7-2.8 |
-| Data Preparation | 1 | 2 | Ch 2.6 |
-| Attention | 2 | 10 | Ch 3 |
-| Architecture | 2 | 8 | Ch 4.1-4.6 |
-| Generation | 1 | 4 | Ch 4.7, 5.3 |
-| Training | 2 | 8 | Ch 5.1-5.2 |
-| Model Management | 1 | 3 | Ch 5.4-5.5 |
-| Fine-tuning | 2 | 8 | Ch 6-7 |
+**These can be added in a future update!**
+
+---
+
+## 📊 Content Coverage (Videos 1-20)
+
+The 6 challenges + 30 flashcards cover:
+
+| Topic | Challenges | Flashcards | Manning Chapters | Videos |
+|-------|-----------|-----------|------------------|--------|
+| Tokenization | 1 | 5 | Ch 2.2-2.5 | 2-5 |
+| Embeddings | 1 | 5 | Ch 2.7-2.8 | 7-8 |
+| Data Preparation | 1 | 1 | Ch 2.6 | 6 |
+| Attention | 2 | 10 | Ch 3.3-3.5 | 9-15 |
+| Multi-Head Attention | 1 | 3 | Ch 3.6 | 16-17 |
+| Architecture Basics | 1 | 6 | Ch 4.1-4.3 | 18-20 |
 
 ---
 
@@ -470,30 +473,28 @@ All 50 cards include:
 ## 💡 Learning Tips
 
 ### For Maximum Retention
-1. **Watch at 1.5x** - Sebastian speaks clearly, save 30% time
+1. **Watch at 1.5x** - Sebastian speaks clearly, save 30% time (5h → 3.3h)
 2. **Code along in real-time** - pause video, type yourself
 3. **Build before looking** - try implementing first, then watch
-4. **Review cards DAILY** - 10 min/day beats 2hr cramming
+4. **Review cards DAILY** - 15 min/day beats 2hr cramming
 5. **Teach back** - explain each concept in your own words
 6. **Ship products** - use challenges for real projects
 
-### For Speed
-- Foundation (3 challenges): 1-2 weeks
-- Intermediate (3 challenges): 2 weeks
-- Advanced (3 challenges): 2 weeks
-- Expert (3 challenges): 2 weeks
-- Mastery (2 challenges): 2-3 weeks
+### For Speed (Videos 1-20)
+- Foundation (2 challenges): 1 week
+- Intermediate (3 challenges): 2 weeks  
+- Advanced (1 challenge): 1 week
 
-**Fast track: 9-11 weeks to complete all challenges**
+**Fast track: 4 weeks to complete videos 1-20**
 
 ### For Depth
 - Spend 2-3 days per challenge
 - Build variants and experiments
-- Read referenced papers
-- Compare implementations
-- Write blog posts
+- Read referenced papers (Attention is All You Need)
+- Compare implementations with Sebastian's code
+- Write blog posts explaining concepts
 
-**Deep track: 16-20 weeks with deep understanding**
+**Deep track: 6-8 weeks with deep understanding**
 
 ---
 
@@ -541,5 +542,22 @@ Daily.
 
 ---
 
+## 📌 Scope Note
+
+**Current Coverage:** Videos 1-20 of Manning's 47-video series
+- ✅ Chapter 2: Tokenization & Embeddings (complete)
+- ✅ Chapter 3: Attention Mechanisms (complete)  
+- ✅ Chapter 4: Architecture basics - LayerNorm, FFN (partial)
+
+**Future Additions:** Videos 21-47 can be added later covering:
+- Rest of GPT architecture (residual connections, full model)
+- Training & optimization
+- Text generation & sampling
+- Fine-tuning (classification, instruction-following)
+
+This phased approach keeps the initial learning manageable while covering the core foundations.
+
+---
+
 *Built by Zint for Ved Singh, Feb 2026*  
-*Optimized for Sebastian Raschka's Manning "Build an LLM from Scratch" series*
+*Optimized for Sebastian Raschka's Manning "Build an LLM from Scratch" series (Videos 1-20)*

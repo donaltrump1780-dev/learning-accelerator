@@ -357,13 +357,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Monaco Editor
   initMonacoEditor();
   
-  // Button handlers
-  document.getElementById('run-code-btn').addEventListener('click', runCode);
-  document.getElementById('reset-code-btn').addEventListener('click', resetCode);
-  document.getElementById('clear-console-btn').addEventListener('click', clearConsole);
-  document.getElementById('show-hint-btn').addEventListener('click', showNextHint);
-  document.getElementById('show-solution-btn').addEventListener('click', showSolution);
-  document.getElementById('close-playground-btn').addEventListener('click', closePlayground);
+  // Button handlers - with null checks
+  const runBtn = document.getElementById('run-code-btn');
+  const resetBtn = document.getElementById('reset-code-btn');
+  const clearBtn = document.getElementById('clear-console-btn');
+  const hintBtn = document.getElementById('show-hint-btn');
+  const solutionBtn = document.getElementById('show-solution-btn');
+  const closeBtn = document.getElementById('close-playground');
+  
+  if (runBtn) runBtn.addEventListener('click', runCode);
+  if (resetBtn) resetBtn.addEventListener('click', resetCode);
+  if (clearBtn) clearBtn.addEventListener('click', clearConsole);
+  if (hintBtn) hintBtn.addEventListener('click', showNextHint);
+  if (solutionBtn) solutionBtn.addEventListener('click', showSolution);
+  if (closeBtn) closeBtn.addEventListener('click', closePlayground);
   
   // Listen for messages from parent window
   window.addEventListener('message', (event) => {

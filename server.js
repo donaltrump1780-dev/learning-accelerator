@@ -25,9 +25,17 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Request logging
+// Request logging with timestamps
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.path}`);
+  
+  // Log response status when finished
+  res.on('finish', () => {
+    const statusColor = res.statusCode < 400 ? '✅' : '❌';
+    console.log(`[${timestamp}] ${statusColor} ${req.method} ${req.path} → ${res.statusCode}`);
+  });
+  
   next();
 });
 
@@ -290,7 +298,9 @@ app.get('/api/dashboard', async (req, res) => {
       totalSkills: challenges.length
     });
   } catch (error) {
-    console.error('Error in /api/dashboard:', error);
+    console.error('❌ ERROR in /api/dashboard:');
+    console.error('  Message:', error.message);
+    console.error('  Stack:', error.stack);
     res.status(500).json({ 
       error: 'Failed to load dashboard',
       details: IS_PRODUCTION ? undefined : error.message
@@ -311,7 +321,9 @@ app.get('/api/lessons', async (req, res) => {
     const lessons = readJSON(LESSON_CONTENT_FILE);
     res.json(lessons);
   } catch (error) {
-    console.error('Error in /api/lessons:', error);
+    console.error('❌ ERROR in /api/lessons:');
+    console.error('  Message:', error.message);
+    console.error('  Stack:', error.stack);
     res.status(500).json({ 
       error: 'Failed to load lessons',
       details: IS_PRODUCTION ? undefined : error.message

@@ -27,10 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadLessonsData() {
   try {
     const response = await fetch('/api/lessons');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     lessonsData = await response.json();
+    console.log('Loaded lessons:', lessonsData.length);
   } catch (error) {
     console.error('Failed to load lessons:', error);
-    showError('Failed to load lessons. Please refresh the page.');
+    showError(`Failed to load lessons: ${error.message}`);
   }
 }
 

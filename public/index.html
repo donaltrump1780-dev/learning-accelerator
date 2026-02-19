@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Accelerator - Learn by Building</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <span class="logo">💎</span>
+      <span class="brand-text">Learning Accelerator</span>
+    </div>
+    <div class="nav-menu">
+      <a href="#" class="nav-link active" data-view="dashboard">Dashboard</a>
+      <a href="#" class="nav-link" data-view="challenges">Challenges</a>
+      <a href="#" class="nav-link" data-view="quiz">Quiz</a>
+      <a href="#" class="nav-link" data-view="teachback">Teach Back</a>
+      <a href="#" class="nav-link" data-view="progress">Progress</a>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Dashboard View -->
+    <div id="dashboard" class="view active">
+      <div class="hero">
+        <h1>Learn by Building, Not Watching</h1>
+        <p class="subtitle">Turn Manning content into hands-on projects</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-value" id="xp-value">0</div>
+          <div class="stat-label">Total XP</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="streak-value">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value" id="skills-value">0/7</div>
+          <div class="stat-label">Skills Complete</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">🧠</div>
+          <div class="stat-value" id="cards-value">0</div>
+          <div class="stat-label">Cards Due</div>
+        </div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="section">
+        <h2>Milestones</h2>
+        <div class="milestones" id="milestones-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <button class="action-btn primary" id="next-challenge-btn">
+            <span class="btn-icon">🎯</span>
+            <div class="btn-content">
+              <div class="btn-title">Start Next Challenge</div>
+              <div class="btn-subtitle" id="next-challenge-name">Loading...</div>
+            </div>
+          </button>
+          
+          <button class="action-btn" id="review-cards-btn">
+            <span class="btn-icon">🧠</span>
+            <div class="btn-content">
+              <div class="btn-title">Review Flashcards</div>
+              <div class="btn-subtitle" id="cards-due-text">0 cards due</div>
+            </div>
+          </button>
+          
+          <button class="action-btn" id="teach-back-btn">
+            <span class="btn-icon">🎓</span>
+            <div class="btn-content">
+              <div class="btn-title">Teach Back</div>
+              <div class="btn-subtitle">Validate your understanding</div>
+            </div>
+          </button>
+          
+          <button class="action-btn" id="view-progress-btn">
+            <span class="btn-icon">📈</span>
+            <div class="btn-content">
+              <div class="btn-title">View Progress</div>
+              <div class="btn-subtitle">Skill tree & achievements</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenges View -->
+    <div id="challenges" class="view">
+      <div class="header">
+        <h1>Build Challenges</h1>
+        <p class="subtitle">Learn by shipping real projects</p>
+      </div>
+
+      <div class="challenges-container">
+        <div class="tier-section">
+          <h2 class="tier-title">
+            <span class="tier-icon">🌱</span>
+            Foundation
+          </h2>
+          <div class="challenges-grid" id="foundation-challenges">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="tier-section">
+          <h2 class="tier-title">
+            <span class="tier-icon">⚡</span>
+            Intermediate
+          </h2>
+          <div class="challenges-grid" id="intermediate-challenges">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="tier-section">
+          <h2 class="tier-title">
+            <span class="tier-icon">💎</span>
+            Advanced
+          </h2>
+          <div class="challenges-grid" id="advanced-challenges">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenge Detail Modal -->
+      <div id="challenge-modal" class="modal">
+        <div class="modal-content">
+          <button class="modal-close">&times;</button>
+          <div id="challenge-detail">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz View -->
+    <div id="quiz" class="view">
+      <div class="header">
+        <h1>Spaced Repetition Quiz</h1>
+        <p class="subtitle">Review cards just before you forget them</p>
+      </div>
+
+      <div id="quiz-container">
+        <!-- Quiz UI populated by JS -->
+      </div>
+    </div>
+
+    <!-- Teach Back View -->
+    <div id="teachback" class="view">
+      <div class="header">
+        <h1>Teach Back Validator</h1>
+        <p class="subtitle">You only truly understand when you can explain it</p>
+      </div>
+
+      <div class="teachback-container">
+        <div class="form-group">
+          <label for="concept-select">Select Concept</label>
+          <select id="concept-select" class="input">
+            <option value="">Choose a concept...</option>
+            <option value="tokenization">Tokenization</option>
+            <option value="embeddings">Embeddings</option>
+            <option value="attention">Attention Mechanism</option>
+            <option value="finetuning">Fine-tuning</option>
+            <option value="prompting">Prompt Engineering</option>
+            <option value="multimodal">Multimodal Models</option>
+            <option value="orchestration">Model Orchestration</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="explanation">Your Explanation</label>
+          <textarea 
+            id="explanation" 
+            class="textarea" 
+            rows="12"
+            placeholder="Explain the concept as if teaching your team. Include:
+- Core idea
+- Common misconceptions
+- Real-world example
+- Practical use case
+
+Minimum 200 characters."
+          ></textarea>
+          <div class="char-count" id="char-count">0 characters</div>
+        </div>
+
+        <button class="btn primary" id="submit-teachback">Submit for Validation</button>
+
+        <div id="teachback-result" class="result-box" style="display: none;">
+          <!-- Result populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress View -->
+    <div id="progress" class="view">
+      <div class="header">
+        <h1>Your Progress</h1>
+        <p class="subtitle">Skill tree & achievements</p>
+      </div>
+
+      <div class="progress-container">
+        <div class="xp-section">
+          <div class="xp-bar-container">
+            <div class="xp-label">
+              <span id="current-xp">0</span> XP
+              <span class="xp-next">Next milestone: <span id="next-milestone">100</span> XP</span>
+            </div>
+            <div class="xp-bar">
+              <div class="xp-fill" id="xp-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tiers-grid">
+          <div class="tier-card">
+            <div class="tier-header">
+              <span class="tier-emoji">🌱</span>
+              <h3>Foundation</h3>
+            </div>
+            <div class="tier-progress">
+              <div class="tier-bar">
+                <div class="tier-fill" id="foundation-fill" style="width: 0%"></div>
+              </div>
+              <span id="foundation-text">0/3</span>
+            </div>
+            <div class="tier-skills" id="foundation-skills">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div class="tier-card">
+            <div class="tier-header">
+              <span class="tier-emoji">⚡</span>
+              <h3>Intermediate</h3>
+            </div>
+            <div class="tier-progress">
+              <div class="tier-bar">
+                <div class="tier-fill" id="intermediate-fill" style="width: 0%"></div>
+              </div>
+              <span id="intermediate-text">0/2</span>
+            </div>
+            <div class="tier-skills" id="intermediate-skills">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div class="tier-card">
+            <div class="tier-header">
+              <span class="tier-emoji">💎</span>
+              <h3>Advanced</h3>
+            </div>
+            <div class="tier-progress">
+              <div class="tier-bar">
+                <div class="tier-fill" id="advanced-fill" style="width: 0%"></div>
+              </div>
+              <span id="advanced-text">0/2</span>
+            </div>
+            <div class="tier-skills" id="advanced-skills">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="achievements-section">
+          <h2>Achievements</h2>
+          <div class="achievements-grid" id="achievements-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

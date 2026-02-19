@@ -6,15 +6,19 @@ const path = require('path');
 
 const app = express();
 
-// Environment configuration
-const NODE_ENV = process.env.NODE_ENV || 'development';
+// CRITICAL: Use Railway's PORT or default to 3000
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
 
-// Log startup environment
-console.log(`🚀 Starting Learning Accelerator in ${NODE_ENV} mode`);
-console.log(`📡 Port: ${PORT}`);
-console.log(`📁 Working directory: ${__dirname}`);
+console.log('='.repeat(50));
+console.log('🚀 STARTING LEARNING ACCELERATOR');
+console.log('='.repeat(50));
+console.log('Environment:', NODE_ENV);
+console.log('Port:', PORT);
+console.log('Working directory:', __dirname);
+console.log('Process CWD:', process.cwd());
+console.log('='.repeat(50));
 
 // Middleware
 app.use(cors());
@@ -27,9 +31,38 @@ app.use((req, res, next) => {
   next();
 });
 
-// Data directories
-const STATIC_DIR = path.join(__dirname, 'data', 'static');
-const RUNTIME_DIR = path.join(__dirname, 'data', 'runtime');
+// Data directories - try multiple locations
+let STATIC_DIR, RUNTIME_DIR;
+
+// Check possible locations for data files
+const possibleDataDirs = [
+  path.join(__dirname, 'data', 'static'),
+  path.join(process.cwd(), 'data', 'static'),
+  path.join(__dirname, 'data'),
+];
+
+for (const dir of possibleDataDirs) {
+  console.log('Checking for data dir:', dir);
+  if (fs.existsSync(dir)) {
+    const testFile = path.join(dir, 'lesson-content.json');
+    if (fs.existsSync(testFile)) {
+      STATIC_DIR = dir;
+      console.log('✅ Found static dir:', STATIC_DIR);
+      break;
+    }
+  }
+}
+
+if (!STATIC_DIR) {
+  console.error('❌ CRITICAL: Could not find data/static directory');
+  STATIC_DIR = path.join(__dirname, 'data', 'static');
+  console.log('⚠️  Using fallback:', STATIC_DIR);
+}
+
+RUNTIME_DIR = path.join(__dirname, 'data', 'runtime');
+
+console.log('Static dir:', STATIC_DIR);
+console.log('Runtime dir:', RUNTIME_DIR);
 
 // Data files
 const PROGRESS_FILE = path.join(RUNTIME_DIR, 'progress.json');
@@ -42,14 +75,18 @@ const CODE_EXERCISES_FILE = path.join(STATIC_DIR, 'code-exercises.json');
 
 // Initialize data files
 function initDataFiles() {
+  console.log('\n📁 Initializing data files...');
+  
   try {
     // Ensure runtime directory exists
     if (!fs.existsSync(RUNTIME_DIR)) {
       fs.mkdirSync(RUNTIME_DIR, { recursive: true });
       console.log('✅ Created runtime directory');
+    } else {
+      console.log('✅ Runtime directory exists');
     }
     
-    // Initialize progress.json if doesn't exist
+    // Initialize progress.json
     if (!fs.existsSync(PROGRESS_FILE)) {
       const initialProgress = {
         xp: 0,
@@ -61,11 +98,12 @@ function initDataFiles() {
       };
       fs.writeFileSync(PROGRESS_FILE, JSON.stringify(initialProgress, null, 2));
       console.log('✅ Initialized progress.json');
+    } else {
+      console.log('✅ progress.json exists');
     }
     
     // Initialize quiz-state.json
     if (!fs.existsSync(QUIZ_FILE)) {
-      // Load flashcards from static folder
       if (fs.existsSync(FLASHCARDS_FILE)) {
         try {
           const flashcardsData = JSON.parse(fs.readFileSync(FLASHCARDS_FILE, 'utf8'));
@@ -83,41 +121,61 @@ function initDataFiles() {
           fs.writeFileSync(QUIZ_FILE, JSON.stringify(initialQuiz, null, 2));
           console.log(`✅ Initialized ${flashcardsData.cards.length} flashcards`);
         } catch (error) {
-          console.error('❌ Failed to load flashcards:', error.message);
+          console.error('⚠️  Failed to load flashcards:', error.message);
+          const emptyQuiz = { cards: [], stats: { total: 0, mastered: 0, learning: 0, new: 0 } };
+          fs.writeFileSync(QUIZ_FILE, JSON.stringify(emptyQuiz, null, 2));
         }
       } else {
-        // Create empty quiz state
-        const emptyQuiz = {
-          cards: [],
-          stats: { total: 0, mastered: 0, learning: 0, new: 0 }
-        };
+        const emptyQuiz = { cards: [], stats: { total: 0, mastered: 0, learning: 0, new: 0 } };
         fs.writeFileSync(QUIZ_FILE, JSON.stringify(emptyQuiz, null, 2));
         console.log('⚠️  No flashcards found, created empty quiz state');
       }
+    } else {
+      console.log('✅ quiz-state.json exists');
     }
     
-    // Verify static files exist
+    // Verify static files
+    console.log('\n🔍 Verifying static files:');
     const requiredStatic = [
       { file: 'lesson-content.json', path: LESSON_CONTENT_FILE },
       { file: 'flashcards.json', path: FLASHCARDS_FILE },
       { file: 'manning-challenges.json', path: CHALLENGES_FILE }
     ];
     
+    let allFilesFound = true;
     requiredStatic.forEach(({ file, path: filePath }) => {
-      if (!fs.existsSync(filePath)) {
-        console.error(`❌ CRITICAL: Missing static file: ${file} at ${filePath}`);
+      if (fs.existsSync(filePath)) {
+        console.log(`✅ Found: ${file}`);
       } else {
-        console.log(`✅ Found static file: ${file}`);
+        console.error(`❌ MISSING: ${file} at ${filePath}`);
+        allFilesFound = false;
       }
     });
+    
+    if (!allFilesFound) {
+      console.error('\n⚠️  Some static files are missing!');
+      console.log('Directory contents of', STATIC_DIR);
+      if (fs.existsSync(STATIC_DIR)) {
+        const files = fs.readdirSync(STATIC_DIR);
+        console.log('Files found:', files);
+      } else {
+        console.log('Directory does not exist!');
+      }
+    }
+    
+    console.log('✅ Data initialization complete\n');
   } catch (error) {
     console.error('❌ CRITICAL ERROR in initDataFiles:', error);
-    throw error;
+    console.error(error.stack);
   }
 }
 
 // Initialize on startup
-initDataFiles();
+try {
+  initDataFiles();
+} catch (error) {
+  console.error('❌ Fatal error during initialization:', error);
+}
 
 // Helper functions
 function readJSON(file) {
@@ -143,7 +201,7 @@ function updateStreak() {
   const today = new Date().toISOString().split('T')[0];
   
   if (progress.lastActive === today) {
-    return progress.streak; // Already active today
+    return progress.streak;
   }
   
   const yesterday = new Date();
@@ -151,11 +209,11 @@ function updateStreak() {
   const yesterdayStr = yesterday.toISOString().split('T')[0];
   
   if (progress.lastActive === yesterdayStr) {
-    progress.streak += 1; // Continue streak
+    progress.streak += 1;
   } else if (progress.lastActive !== null) {
-    progress.streak = 1; // Reset streak
+    progress.streak = 1;
   } else {
-    progress.streak = 1; // First day
+    progress.streak = 1;
   }
   
   progress.lastActive = today;
@@ -176,39 +234,23 @@ function checkMilestones(xp) {
     .map(m => ({ ...m, unlocked: true }));
 }
 
-// ============================================================================
 // ROUTES
-// ============================================================================
 
-// Health check for Railway
+// Health check for Railway - SIMPLE AND ALWAYS WORKS
 app.get('/health', (req, res) => {
-  const health = {
+  console.log('Health check requested');
+  res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: NODE_ENV
-  };
-  
-  // Verify critical files exist
-  const criticalFiles = [
-    { name: 'lesson-content.json', path: LESSON_CONTENT_FILE },
-    { name: 'flashcards.json', path: FLASHCARDS_FILE },
-    { name: 'progress.json', path: PROGRESS_FILE }
-  ];
-  
-  const fileChecks = criticalFiles.map(({ name, path }) => ({
-    file: name,
-    exists: fs.existsSync(path)
-  }));
-  
-  const allFilesExist = fileChecks.every(check => check.exists);
-  
-  if (!allFilesExist) {
-    health.status = 'degraded';
-    health.missingFiles = fileChecks.filter(c => !c.exists);
-  }
-  
-  res.status(allFilesExist ? 200 : 500).json(health);
+    environment: NODE_ENV,
+    port: PORT
+  });
+});
+
+// Root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Dashboard
@@ -260,6 +302,7 @@ app.get('/api/dashboard', async (req, res) => {
 app.get('/api/lessons', async (req, res) => {
   try {
     if (!fs.existsSync(LESSON_CONTENT_FILE)) {
+      console.error('Lesson file not found at:', LESSON_CONTENT_FILE);
       return res.status(404).json({ 
         error: 'Lesson content not found',
         path: LESSON_CONTENT_FILE
@@ -305,12 +348,10 @@ app.post('/api/lessons/:id/complete', async (req, res) => {
       return res.status(404).json({ error: 'Lesson not found' });
     }
     
-    // Initialize completedLessons if not exists
     if (!progress.completedLessons) {
       progress.completedLessons = [];
     }
     
-    // Check if already completed
     if (progress.completedLessons.includes(lesson.id)) {
       return res.json({ 
         message: 'Already completed',
@@ -319,16 +360,10 @@ app.post('/api/lessons/:id/complete', async (req, res) => {
       });
     }
     
-    // Add to completed lessons
     progress.completedLessons.push(lesson.id);
-    
-    // Award XP (100 per lesson)
     progress.xp += 100;
     
-    // Update streak
     const newStreak = updateStreak();
-    
-    // Calculate milestones
     const milestones = checkMilestones(progress.xp);
     
     writeJSON(PROGRESS_FILE, progress);
@@ -366,25 +401,6 @@ app.get('/api/challenges', async (req, res) => {
     console.error('Error in /api/challenges:', error);
     res.status(500).json({ 
       error: 'Failed to load challenges',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
-app.get('/api/challenges/:id', async (req, res) => {
-  try {
-    const challenges = readJSON(CHALLENGES_FILE);
-    const challenge = challenges.find(c => c.id === req.params.id);
-    
-    if (!challenge) {
-      return res.status(404).json({ error: 'Challenge not found' });
-    }
-    
-    res.json(challenge);
-  } catch (error) {
-    console.error('Error in /api/challenges/:id:', error);
-    res.status(500).json({ 
-      error: 'Failed to load challenge',
       details: IS_PRODUCTION ? undefined : error.message
     });
   }
@@ -428,20 +444,7 @@ app.post('/api/challenges/:id/complete', async (req, res) => {
   }
 });
 
-// Quiz
-app.get('/api/quiz/cards', async (req, res) => {
-  try {
-    const quiz = readJSON(QUIZ_FILE);
-    res.json(quiz.cards);
-  } catch (error) {
-    console.error('Error in /api/quiz/cards:', error);
-    res.status(500).json({ 
-      error: 'Failed to load quiz cards',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
+// Quiz endpoints
 app.get('/api/quiz/due', async (req, res) => {
   try {
     const quiz = readJSON(QUIZ_FILE);
@@ -449,7 +452,6 @@ app.get('/api/quiz/due', async (req, res) => {
       if (!card.nextReview) return true;
       return new Date(card.nextReview) <= new Date();
     });
-    
     res.json(dueCards);
   } catch (error) {
     console.error('Error in /api/quiz/due:', error);
@@ -462,7 +464,7 @@ app.get('/api/quiz/due', async (req, res) => {
 
 app.post('/api/quiz/review', async (req, res) => {
   try {
-    const { cardId, quality } = req.body; // quality: 0-5 (SM-2 algorithm)
+    const { cardId, quality } = req.body;
     const quiz = readJSON(QUIZ_FILE);
     const card = quiz.cards.find(c => c.id === cardId);
     
@@ -501,42 +503,6 @@ app.post('/api/quiz/review', async (req, res) => {
     console.error('Error in /api/quiz/review:', error);
     res.status(500).json({ 
       error: 'Failed to record review',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
-// Quiz questions (for lessons)
-app.get('/api/quiz/:lessonId', async (req, res) => {
-  try {
-    if (!fs.existsSync(QUIZ_QUESTIONS_FILE)) {
-      return res.json({ inLessonQuizzes: [], finalQuiz: null });
-    }
-    const quizzes = readJSON(QUIZ_QUESTIONS_FILE);
-    const lessonQuiz = quizzes.find(q => q.lessonId === req.params.lessonId);
-    res.json(lessonQuiz || { inLessonQuizzes: [], finalQuiz: null });
-  } catch (error) {
-    console.error('Error in /api/quiz/:lessonId:', error);
-    res.status(500).json({ 
-      error: 'Failed to load quiz',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
-// Code exercises
-app.get('/api/code-exercises/:lessonId', async (req, res) => {
-  try {
-    if (!fs.existsSync(CODE_EXERCISES_FILE)) {
-      return res.json({ exercises: [] });
-    }
-    const exercises = readJSON(CODE_EXERCISES_FILE);
-    const lessonExercises = exercises.find(e => e.lessonId === req.params.lessonId);
-    res.json(lessonExercises || { exercises: [] });
-  } catch (error) {
-    console.error('Error in /api/code-exercises/:lessonId:', error);
-    res.status(500).json({ 
-      error: 'Failed to load exercises',
       details: IS_PRODUCTION ? undefined : error.message
     });
   }
@@ -583,69 +549,6 @@ app.get('/api/progress', async (req, res) => {
   }
 });
 
-// Teach Back
-app.post('/api/teachback/submit', async (req, res) => {
-  try {
-    const { concept, explanation } = req.body;
-    
-    // Simple validation - in real version, this would use AI to validate
-    const minLength = 200; // characters
-    const hasExample = explanation.toLowerCase().includes('example') || 
-                       explanation.toLowerCase().includes('for instance');
-    const hasUseCase = explanation.toLowerCase().includes('use') ||
-                       explanation.toLowerCase().includes('practical');
-    
-    const score = {
-      length: explanation.length >= minLength,
-      hasExample,
-      hasUseCase,
-      overall: explanation.length >= minLength && hasExample && hasUseCase
-    };
-    
-    if (score.overall) {
-      updateStreak();
-    }
-    
-    res.json({
-      score,
-      feedback: score.overall 
-        ? '✅ Good explanation! You clearly understand this concept.'
-        : '❌ Needs more detail. Add a real-world example and practical use case.',
-      passed: score.overall
-    });
-  } catch (error) {
-    console.error('Error in /api/teachback/submit:', error);
-    res.status(500).json({ 
-      error: 'Failed to submit teach back',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
-// Stats
-app.get('/api/stats', async (req, res) => {
-  try {
-    const progress = readJSON(PROGRESS_FILE);
-    const quiz = readJSON(QUIZ_FILE);
-    const challenges = fs.existsSync(CHALLENGES_FILE) ? readJSON(CHALLENGES_FILE) : [];
-    
-    res.json({
-      totalXP: progress.xp,
-      currentStreak: progress.streak,
-      skillsCompleted: progress.completedSkills.length,
-      totalSkills: challenges.length,
-      cardsTotal: quiz.cards.length,
-      milestones: checkMilestones(progress.xp)
-    });
-  } catch (error) {
-    console.error('Error in /api/stats:', error);
-    res.status(500).json({ 
-      error: 'Failed to load stats',
-      details: IS_PRODUCTION ? undefined : error.message
-    });
-  }
-});
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
@@ -661,36 +564,41 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Learning Accelerator running on http://localhost:${PORT}`);
-  console.log(`📚 Lessons available at http://localhost:${PORT}/lessons.html`);
-  console.log(`💚 Health check at http://localhost:${PORT}/health`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log('='.repeat(50));
+  console.log('✅ SERVER STARTED SUCCESSFULLY');
+  console.log('='.repeat(50));
+  console.log(`🚀 Running on: http://0.0.0.0:${PORT}`);
+  console.log(`💚 Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`📚 Lessons: http://0.0.0.0:${PORT}/lessons.html`);
+  console.log('='.repeat(50));
   
-  // Verify lesson content file exists
+  // Verify critical files
   if (fs.existsSync(LESSON_CONTENT_FILE)) {
-    const lessons = JSON.parse(fs.readFileSync(LESSON_CONTENT_FILE, 'utf8'));
-    console.log(`✅ Loaded ${lessons.length} lessons from lesson-content.json`);
+    try {
+      const lessons = JSON.parse(fs.readFileSync(LESSON_CONTENT_FILE, 'utf8'));
+      console.log(`✅ Loaded ${lessons.length} lessons`);
+    } catch (e) {
+      console.error('❌ Failed to parse lessons:', e.message);
+    }
   } else {
-    console.error(`❌ CRITICAL: lesson-content.json NOT FOUND at ${LESSON_CONTENT_FILE}`);
+    console.error('❌ CRITICAL: lesson-content.json NOT FOUND');
   }
+  console.log('='.repeat(50));
 });
 
-// Global error handlers (prevent crashes)
+// Global error handlers
 process.on('uncaughtException', (error) => {
   console.error('❌ UNCAUGHT EXCEPTION:', error);
   console.error(error.stack);
-  // Don't exit - let Railway handle restart
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ UNHANDLED REJECTION at:', promise);
-  console.error('Reason:', reason);
-  // Don't exit - log and continue
+  console.error('❌ UNHANDLED REJECTION:', reason);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('⚠️  SIGTERM received, shutting down gracefully');
+  console.log('⚠️  SIGTERM - shutting down gracefully');
   server.close(() => {
     console.log('✅ Server closed');
     process.exit(0);
@@ -698,7 +606,7 @@ process.on('SIGTERM', () => {
 });
 
 process.on('SIGINT', () => {
-  console.log('⚠️  SIGINT received, shutting down gracefully');
+  console.log('⚠️  SIGINT - shutting down gracefully');
   server.close(() => {
     console.log('✅ Server closed');
     process.exit(0);

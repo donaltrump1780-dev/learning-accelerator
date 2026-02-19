@@ -503,6 +503,8 @@
   box-shadow: 0 2px 10px rgba(79, 70, 229, 0.1);
   line-height: 1.8;
   white-space: pre-wrap;
+  color: #1f2937;
+  font-size: 1.05rem;
 }
 
 /* Visual Section */
@@ -568,16 +570,20 @@
   background: #f9fafb;
   border-top: 1px solid #e5e7eb;
   line-height: 1.7;
+  color: #1f2937;
 }
 
 .example-exercise {
   padding: 1.5rem;
+  background: #f9fafb;
+  color: #1f2937;
 }
 
 .exercise-question {
   font-weight: 600;
   margin-bottom: 1rem;
   font-size: 1.05rem;
+  color: #1f2937;
 }
 
 .exercise-answer {
@@ -612,6 +618,8 @@
   border-left: 4px solid #10b981;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   line-height: 1.6;
+  color: #1f2937;
+  font-size: 1.05rem;
 }
 
 .keypoints-list li::before {

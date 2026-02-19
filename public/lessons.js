@@ -112,7 +112,7 @@ function renderNextLessonCard() {
     <span class="next-lesson-emoji">${nextLesson.emoji}</span>
     <h3 class="next-lesson-title">${nextLesson.title}</h3>
     <p class="next-lesson-subtitle">${nextLesson.subtitle}</p>
-    <button class="next-lesson-cta" onclick="viewLesson('${nextLesson.id}')">
+    <button class="next-lesson-cta" onclick="window.location.href='lesson-detail.html?id=${nextLesson.id}')">
       Start Learning →
     </button>
   `;
@@ -141,7 +141,7 @@ function renderLessonPath() {
       cardClass += ' current';
     }
     
-    const clickHandler = isLocked ? '' : `onclick="viewLesson('${lesson.id}')"`;
+    const clickHandler = isLocked ? '' : `onclick="window.location.href='lesson-detail.html?id=${lesson.id}')"`;
     
     return `
       <div class="${cardClass}" ${clickHandler}>

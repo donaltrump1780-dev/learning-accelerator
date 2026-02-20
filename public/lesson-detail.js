@@ -553,7 +553,8 @@ async function nextLesson() {
     alert('Error loading next lesson. Check console for details.');
   }
 }
- 
+
+ 
  
 
 // Show debug info on screen (for mobile)
@@ -563,7 +564,7 @@ window.showDebugInfo = async function() {
   const lessons = await lessonsResponse.json();
   
   const debugDiv = document.getElementById('debug-progress');
-  debugDiv.innerHTML = `<strong>?? localStorage:</strong><br>Completed: ${JSON.stringify(progress.completedLessons)}<br>XP: ${progress.xp}<br><br><strong>Next:</strong> ${lessons.find(l => !progress.completedLessons.includes(l.id))?.id || 'NONE'}`;
+  debugDiv.innerHTML = `<strong>📊 localStorage:</strong><br>Completed: ${JSON.stringify(progress.completedLessons)}<br>XP: ${progress.xp}<br><br><strong>Next:</strong> ${lessons.find(l => !progress.completedLessons.includes(l.id))?.id || 'NONE'}`;
   debugDiv.style.display = 'block';
 };
 

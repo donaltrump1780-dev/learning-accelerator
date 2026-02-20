@@ -44,6 +44,7 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ============================
@@ -599,20 +600,24 @@ body {
 /* ============================
    Step 3 — Code
    ============================ */
+
+/* Stack vertically: instructions on top, editor below.
+   This gives the editor 100% of the available width with
+   no side-by-side column fighting Monaco's internal sizing. */
 .code-layout {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1rem;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
 }
 
 .instructions-panel {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
 }
 
 .panel-label {
@@ -671,6 +676,7 @@ body {
   min-width: 0;
   overflow: hidden;
   width: 100%;
+  max-width: 100%;
 }
 
 .editor-toolbar {
@@ -734,8 +740,9 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  height: 360px;
+  height: 400px;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -915,10 +922,6 @@ body {
   .step-dots { gap: 1.5rem; }
 
   .lesson-hero h1 { font-size: 1.5rem; }
-
-  .code-layout {
-    grid-template-columns: 1fr;
-  }
 
   #code-editor { height: 300px; }
 

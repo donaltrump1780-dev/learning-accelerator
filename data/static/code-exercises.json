@@ -48,7 +48,7 @@
           "Each pair is (tokens[i], tokens[i+1])",
           "Counter from collections counts occurrences automatically"
         ],
-        "expectedOutput": "Counter({('un', 'lock'): 2, ('lock', 'un'): 1, ('un', 'able'): 1})"
+        "expectedOutput": "Counter({('un', 'lock'): 2, ('lock', 'un'): 2, ('un', 'able'): 1})"
       }
     ]
   },

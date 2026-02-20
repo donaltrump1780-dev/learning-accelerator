@@ -739,7 +739,7 @@ window.showDebugInfo = async function() {
 // Export functions for inline onclick handlers
 window.nextStep = nextStep;
 window.completeLesson = completeLesson;
-window.checkQuizAnswer = checkQuizAnswer;
+window.answerQuestion = answerQuestion;
 window.runCode = runCode;
 window.showHint = showHint;
 window.skipToCode = skipToCode;

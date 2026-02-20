@@ -5,6 +5,7 @@ let currentStep = 1;
 let lessonData  = null;
 let quizData    = null;
 let codeExercises = null;
+let currentExercise = null;
 let currentQuizIndex = 0;
 let quizScore   = 0;
 let editor      = null;
@@ -315,6 +316,7 @@ function renderCodeExercise() {
   }
 
   const exercise = codeExercises[0];
+  currentExercise = exercise;
   const instrEl = document.getElementById('code-instructions');
   if (instrEl) instrEl.textContent = exercise.instructions;
 
@@ -405,7 +407,7 @@ async function runCode() {
 
   const code = editor.getValue();
   clearConsole();
-  appendToConsole('Running...\n');
+  appendToConsole('Running...', 'running');
 
   try {
     await pyodide.runPythonAsync(`
@@ -415,10 +417,241 @@ sys.stdout = StringIO()
 `);
     await pyodide.runPythonAsync(code);
     const output = await pyodide.runPythonAsync('sys.stdout.getvalue()');
-    appendToConsole(output || '(no output)');
+    clearConsole();
+    showOutputResult(output.trimEnd());
   } catch (e) {
-    appendToConsole(`Error:\n${e.message}`, 'error');
+    clearConsole();
+    showErrorExplained(e.message);
   }
+}
+
+// ── Output validation ─────────────────────────────────────────────────────────
+function showOutputResult(output) {
+  const el = document.getElementById('console-output');
+  if (!el) return;
+
+  const exercise = currentExercise;
+  const expected = exercise && exercise.expectedOutput ? exercise.expectedOutput.trimEnd() : null;
+  const hints    = exercise ? (exercise.hints || []) : [];
+
+  if (!output) {
+    el.innerHTML = `<div class="console-line muted">(no output — your code ran but printed nothing)</div>`;
+    return;
+  }
+
+  // No expected output defined — just show what ran
+  if (!expected) {
+    el.innerHTML = `<pre class="console-line success">${escapeHtml(output)}</pre>`;
+    return;
+  }
+
+  const normalize = s => s.split('\n').map(l => l.trimEnd()).join('\n').trimEnd();
+  const isCorrect = normalize(output) === normalize(expected);
+
+  if (isCorrect) {
+    el.innerHTML = `
+      <div class="output-correct-card">
+        <div class="output-correct-header">
+          <span>✅</span>
+          <span class="output-correct-title">Perfect — that's the right output!</span>
+        </div>
+        <pre class="output-pre">${escapeHtml(output)}</pre>
+      </div>`;
+  } else {
+    // Show the next unused hint, cycling through the list
+    const hint = hints[currentHintIndex] || null;
+
+    el.innerHTML = `
+      <div class="output-mismatch-card">
+        <div class="output-mismatch-header">
+          <span>🔍</span>
+          <span class="output-mismatch-title">Not quite — compare your output to what's expected</span>
+        </div>
+        <div class="output-compare">
+          <div class="output-col">
+            <div class="output-col-label">Your output</div>
+            <pre class="output-pre yours">${escapeHtml(output)}</pre>
+          </div>
+          <div class="output-col">
+            <div class="output-col-label">Expected</div>
+            <pre class="output-pre expected">${escapeHtml(expected)}</pre>
+          </div>
+        </div>
+        ${hint ? `
+        <div class="output-hint">
+          <span class="hint-spark">💡</span>
+          <span>${escapeHtml(hint)}</span>
+        </div>` : ''}
+      </div>`;
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── Error interpreter ────────────────────────────────────────────────────────
+// Turns raw Python tracebacks into plain-English lessons.
+function explainPythonError(msg) {
+  const rules = [
+    // ── Missing argument ──────────────────────────────────────────────────
+    {
+      match: /(\w+)\(\) missing (\d+) required positional argument[s]?: '(.+?)'/,
+      explain: (m) => ({
+        title: 'Missing argument',
+        body: `\`${m[1]}()\` needs more information to run. You're missing the \`${m[3]}\` argument.\n\nFunctions work like recipes — they need all the ingredients you promised them. Check how many arguments \`${m[1]}\` expects and make sure you're passing all of them.`
+      })
+    },
+    // ── Wrong number of arguments ─────────────────────────────────────────
+    {
+      match: /(\w+)\(\) takes (\d+) positional argument[s]? but (\d+) (?:was|were) given/,
+      explain: (m) => ({
+        title: 'Too many arguments',
+        body: `\`${m[1]}()\` expects ${m[2]} argument${m[2] === '1' ? '' : 's'} but you gave it ${m[3]}.\n\nRemove the extra argument and try again.`
+      })
+    },
+    // ── Typo in function name (e.g. re.finall) ────────────────────────────
+    {
+      match: /module '(.+?)' has no attribute '(.+?)'/,
+      explain: (m) => ({
+        title: 'Function name typo',
+        body: `\`${m[1]}.${m[2]}\` doesn't exist — looks like a typo.\n\nPython is case-sensitive and spelling matters exactly. Double-check the function name in the \`${m[1]}\` docs. For example, \`re.findall\` not \`re.finall\`.`
+      })
+    },
+    // ── Object has no attribute ───────────────────────────────────────────
+    {
+      match: /'(.+?)' object has no attribute '(.+?)'/,
+      explain: (m) => ({
+        title: 'Wrong method name',
+        body: `A \`${m[1]}\` doesn't have a method called \`${m[2]}\`.\n\nCheck the spelling, or check that you're calling this on the right type of variable.`
+      })
+    },
+    // ── NameError ─────────────────────────────────────────────────────────
+    {
+      match: /NameError: name '(.+?)' is not defined/,
+      explain: (m) => ({
+        title: 'Variable not defined',
+        body: `\`${m[1]}\` doesn't exist yet when Python tries to use it.\n\nEither you have a typo, you forgot to create the variable before using it, or it was defined inside a function and you're using it outside.`
+      })
+    },
+    // ── SyntaxError ───────────────────────────────────────────────────────
+    {
+      match: /SyntaxError: (.+)/,
+      explain: (m) => ({
+        title: 'Syntax error',
+        body: `Python couldn't understand your code: ${m[1]}\n\nCommon causes: missing colon after \`if\`/\`for\`/\`def\`, unmatched parentheses or brackets, or a missing quote.`
+      })
+    },
+    // ── IndentationError ─────────────────────────────────────────────────
+    {
+      match: /IndentationError: (.+)/,
+      explain: () => ({
+        title: 'Indentation error',
+        body: `Your code isn't lined up correctly.\n\nPython uses spaces (not braces) to show which code belongs inside a function or loop. Every line inside a block needs the same number of spaces. Use 4 spaces per level.`
+      })
+    },
+    // ── TypeError (generic) ───────────────────────────────────────────────
+    {
+      match: /TypeError: (.+)/,
+      explain: (m) => ({
+        title: 'Type error',
+        body: `You used a value in a way it doesn't support: ${m[1]}\n\nThis usually means mixing incompatible types — like adding a number to a string, or calling a method on the wrong kind of variable. Check what types your variables are.`
+      })
+    },
+    // ── IndexError ────────────────────────────────────────────────────────
+    {
+      match: /IndexError: (.+)/,
+      explain: (m) => ({
+        title: 'Index out of range',
+        body: `${m[1]}\n\nYou're trying to access a position in a list that doesn't exist. Lists start at index 0, so a list of 3 items has positions 0, 1, and 2 — not 3.`
+      })
+    },
+    // ── KeyError ─────────────────────────────────────────────────────────
+    {
+      match: /KeyError: (.+)/,
+      explain: (m) => ({
+        title: 'Key not found',
+        body: `${m[1]} doesn't exist in your dictionary.\n\nCheck your spelling, or use \`.get(key)\` instead of \`[key]\` to avoid this crash when a key might be missing.`
+      })
+    },
+    // ── ZeroDivisionError ─────────────────────────────────────────────────
+    {
+      match: /ZeroDivisionError/,
+      explain: () => ({
+        title: 'Division by zero',
+        body: `You're dividing a number by 0, which is undefined.\n\nAdd a check before dividing: \`if divisor != 0:\``
+      })
+    },
+    // ── RecursionError ────────────────────────────────────────────────────
+    {
+      match: /RecursionError/,
+      explain: () => ({
+        title: 'Infinite recursion',
+        body: `Your function is calling itself forever without stopping.\n\nMake sure you have a base case — a condition where the function returns without calling itself again.`
+      })
+    },
+  ];
+
+  for (const rule of rules) {
+    const m = msg.match(rule.match);
+    if (m) return rule.explain(m);
+  }
+
+  return null;
+}
+
+function showErrorExplained(rawMessage) {
+  const el = document.getElementById('console-output');
+  if (!el) return;
+
+  // Extract just the last error line (the actual exception)
+  const lines    = rawMessage.split('\n').filter(Boolean);
+  const lastLine = lines[lines.length - 1] || rawMessage;
+
+  // Try to find a matching explanation
+  const explained = explainPythonError(rawMessage) || explainPythonError(lastLine);
+
+  // Find line number if mentioned in traceback
+  const lineMatch = rawMessage.match(/line (\d+)/g);
+  const lineRef   = lineMatch ? lineMatch[lineMatch.length - 1] : null;
+
+  // Pull next exercise hint so the card is lesson-specific
+  const exHints = currentExercise ? (currentExercise.hints || []) : [];
+  const exHint  = exHints[currentHintIndex] || null;
+  const hintHtml = exHint
+    ? `<div class="output-hint" style="margin-top:0.85rem;"><span class="hint-spark">💡</span><span>${escapeHtml(exHint)}</span></div>`
+    : '';
+
+  const bodyHtml = (html) =>
+    `${html}${hintHtml}
+     <details class="error-details">
+       <summary>See full error</summary>
+       <pre class="error-raw">${escapeHtml(rawMessage)}</pre>
+     </details>`;
+
+  if (explained) {
+    el.innerHTML = `
+      <div class="error-card">
+        <div class="error-card-header">
+          <span class="error-icon">⚠️</span>
+          <span class="error-title">${explained.title}${lineRef ? ` · ${lineRef}` : ''}</span>
+        </div>
+        <div class="error-body">${explained.body.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>')}</div>
+        ${bodyHtml('')}
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="error-card">
+        <div class="error-card-header">
+          <span class="error-icon">⚠️</span>
+          <span class="error-title">Error${lineRef ? ` · ${lineRef}` : ''}</span>
+        </div>
+        <pre class="error-raw">${escapeHtml(lastLine)}</pre>
+        ${bodyHtml('')}
+      </div>`;
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function clearConsole() {

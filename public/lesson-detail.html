@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lesson · Learning Accelerator</title>
   <link rel="stylesheet" href="lesson-detail.css">
+  <!-- Monaco CSS — jsDelivr is more reliable than cdnjs for Monaco -->
   <link rel="stylesheet" data-name="vs/editor/editor.main"
-        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js" defer></script>
+        href="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/editor/editor.main.css">
+  <!-- Pyodide — NO defer: loadPyodide global must exist before our JS calls it -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 </head>
 <body>
 
@@ -200,7 +202,8 @@
 
   </div><!-- /page-wrap -->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <!-- Monaco loader — matching jsDelivr version -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
   <script src="lesson-detail.js"></script>
 </body>
 </html>

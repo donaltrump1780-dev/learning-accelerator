@@ -334,7 +334,7 @@ function renderCodeExercise() {
       setValue: (v) => { document.getElementById('simple-editor').value = v; }
     };
   } else {
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
     require(['vs/editor/editor.main'], () => {
       editor = monaco.editor.create(document.getElementById('code-editor'), {
         value: exercise.starterCode || '# Write your code here\n',
@@ -387,9 +387,15 @@ function renderCodeExercise() {
 // ── Pyodide ───────────────────────────────────────────────────────────────────
 async function initPyodide() {
   try {
-    pyodide = await loadPyodide();
+    // indexURL must be explicit — without it Pyodide v0.25 calls calculateDirname
+    // which fails when the script is loaded from a CDN path it can't resolve.
+    pyodide = await loadPyodide({
+      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'
+    });
+    console.log('✅ Pyodide ready');
   } catch (e) {
     console.warn('Pyodide failed to load:', e);
+    appendToConsole('⚠️ Python runtime failed to load. This can happen if your browser blocks WebAssembly (e.g. Brave Shields). Try disabling shields for this site.', 'error');
   }
 }
 

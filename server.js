@@ -244,8 +244,24 @@ app.get('/api/debug/state', async (req, res) => {
     const progress = readJSON(PROGRESS_FILE);
     const lessons = loadAllLessons();
     
+    // Read actual file content
+    let progressFileContent = null;
+    let progressFileStats = null;
+    try {
+      progressFileContent = fs.readFileSync(PROGRESS_FILE, 'utf8');
+      progressFileStats = fs.statSync(PROGRESS_FILE);
+    } catch (e) {
+      console.error('Failed to read progress file:', e);
+    }
+    
     res.json({
       timestamp: new Date().toISOString(),
+      server: {
+        __dirname,
+        cwd: process.cwd(),
+        runtimeDir: RUNTIME_DIR,
+        staticDir: STATIC_DIR
+      },
       progress: {
         completedLessons: progress.completedLessons || [],
         completedCount: (progress.completedLessons || []).length,
@@ -265,6 +281,14 @@ app.get('/api/debug/state', async (req, res) => {
       files: {
         progressFile: PROGRESS_FILE,
         progressExists: fs.existsSync(PROGRESS_FILE),
+        progressFileStats: progressFileStats ? {
+          size: progressFileStats.size,
+          modified: progressFileStats.mtime,
+          created: progressFileStats.birthtime
+        } : null,
+        progressFileContent: progressFileContent ? JSON.parse(progressFileContent) : null,
+        runtimeDirExists: fs.existsSync(RUNTIME_DIR),
+        runtimeDirContents: fs.existsSync(RUNTIME_DIR) ? fs.readdirSync(RUNTIME_DIR) : [],
         lessonFiles: [
           { file: 'lesson-content.json', exists: fs.existsSync(LESSON_CONTENT_FILE) },
           { file: 'lessons-6-10.json', exists: fs.existsSync(LESSONS_6_10_FILE) },

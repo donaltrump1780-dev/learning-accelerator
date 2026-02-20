@@ -10,6 +10,33 @@ let editor = null;
 let pyodide = null;
 let currentHintIndex = 0;
 
+// Client-side progress storage
+const STORAGE_KEY = 'learning-accelerator-progress';
+
+function loadLocalProgress() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {
+      completedLessons: [],
+      xp: 0,
+      streak: 0,
+      lastActive: null
+    };
+  } catch (error) {
+    console.error('Failed to load progress:', error);
+    return { completedLessons: [], xp: 0, streak: 0, lastActive: null };
+  }
+}
+
+function saveLocalProgress(progress) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    console.log('✅ Progress saved locally:', progress);
+  } catch (error) {
+    console.error('❌ Failed to save progress:', error);
+  }
+}
+
 // Get lesson ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const lessonId = urlParams.get('id');
@@ -34,8 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Check if user has access to this lesson
 async function checkLessonAccess() {
   try {
-    const progressResponse = await fetch(`${API_BASE}/api/progress`);
-    const progress = await progressResponse.json();
+    const progress = loadLocalProgress();
     
     const lessonsResponse = await fetch(`${API_BASE}/api/lessons`);
     const lessons = await lessonsResponse.json();
@@ -428,20 +454,39 @@ async function completeLesson() {
   try {
     console.log('📝 Completing lesson:', lessonId);
     
-    const response = await fetch(`${API_BASE}/api/lessons/${lessonId}/complete`, {
-      method: 'POST'
-    });
+    // Load current progress from localStorage
+    const progress = loadLocalProgress();
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    // Check if already completed
+    if (progress.completedLessons.includes(lessonId)) {
+      console.log('⚠️ Lesson already completed');
+      // Still show completion screen
+    } else {
+      // Mark as complete
+      progress.completedLessons.push(lessonId);
+      progress.xp = (progress.xp || 0) + 100;
+      progress.lastActive = new Date().toISOString();
+      
+      // Update streak
+      const today = new Date().toISOString().split('T')[0];
+      const lastActiveDate = progress.lastActive ? progress.lastActive.split('T')[0] : null;
+      
+      if (!lastActiveDate || lastActiveDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        if (lastActiveDate === yesterday) {
+          progress.streak = (progress.streak || 0) + 1;
+        } else {
+          progress.streak = 1;
+        }
+      }
+      
+      // Save to localStorage
+      saveLocalProgress(progress);
+      
+      console.log('✅ Lesson completed successfully');
+      console.log('Total XP:', progress.xp);
+      console.log('Completed lessons:', progress.completedLessons);
     }
-    
-    const result = await response.json();
-    console.log('✅ Lesson completed successfully:', result);
-    console.log('Total XP:', result.xp);
-    console.log('XP gained:', result.xpGained);
-    console.log('Completed lessons count:', result.completedLessons);
     
     // Show completion step
     currentStep = 4;
@@ -469,9 +514,8 @@ async function nextLesson() {
   try {
     console.log('Finding next lesson...');
     
-    // Force reload progress from server (no cache)
-    const progressResponse = await fetch(`${API_BASE}/api/progress?_=${Date.now()}`);
-    const progress = await progressResponse.json();
+    // Load progress from localStorage
+    const progress = loadLocalProgress();
     
     console.log('Current progress:', progress);
     console.log('Completed lessons:', progress.completedLessons);

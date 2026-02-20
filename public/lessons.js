@@ -7,6 +7,24 @@ let userProgress = {
   totalXP: 0
 };
 
+// Client-side progress storage
+const STORAGE_KEY = 'learning-accelerator-progress';
+
+function loadLocalProgress() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {
+      completedLessons: [],
+      xp: 0,
+      streak: 0,
+      lastActive: null
+    };
+  } catch (error) {
+    console.error('Failed to load progress:', error);
+    return { completedLessons: [], xp: 0, streak: 0, lastActive: null };
+  }
+}
+
 const BADGES = {
   'tokenization': { emoji: '🧩', name: 'Word Breaker' },
   'special-tokens': { emoji: '🎯', name: 'Token Master' },
@@ -41,14 +59,16 @@ async function loadLessonsData() {
 // Load user progress
 async function loadUserProgress() {
   try {
-    const response = await fetch('/api/progress');
-    const progress = await response.json();
+    // Load from localStorage instead of server
+    const progress = loadLocalProgress();
     
     // Extract lesson completion from progress
     userProgress.completedLessons = progress.completedLessons || [];
     userProgress.totalXP = progress.xp || 0;
     userProgress.currentLevel = calculateLevel(userProgress.completedLessons.length);
     userProgress.streak = progress.streak || 0;
+    
+    console.log('✅ Loaded progress from localStorage:', userProgress);
   } catch (error) {
     console.error('Failed to load progress:', error);
   }

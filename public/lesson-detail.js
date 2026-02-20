@@ -559,13 +559,23 @@ async function nextLesson() {
 
 // Show debug info on screen (for mobile)
 window.showDebugInfo = async function() {
-  const progress = loadLocalProgress();
-  const lessonsResponse = await fetch(API_BASE + '/api/lessons');
-  const lessons = await lessonsResponse.json();
-  
-  const debugDiv = document.getElementById('debug-progress');
-  debugDiv.innerHTML = `<strong>📊 localStorage:</strong><br>Completed: ${JSON.stringify(progress.completedLessons)}<br>XP: ${progress.xp}<br><br><strong>Next:</strong> ${lessons.find(l => !progress.completedLessons.includes(l.id))?.id || 'NONE'}`;
-  debugDiv.style.display = 'block';
+  try {
+    const progress = loadLocalProgress();
+    const lessonsResponse = await fetch(API_BASE + '/api/lessons');
+    const data = await lessonsResponse.json();
+    const lessons = Array.isArray(data) ? data : data.lessons;
+    
+    const debugDiv = document.getElementById('debug-progress');
+    if (debugDiv) {
+      const nextLesson = lessons.find(l => !progress.completedLessons.includes(l.id));
+      debugDiv.innerHTML = '<strong>Progress Debug:</strong><br>Completed: ' + 
+        JSON.stringify(progress.completedLessons) + '<br>XP: ' + progress.xp + 
+        '<br><br><strong>Next:</strong> ' + (nextLesson ? nextLesson.id : 'NONE');
+      debugDiv.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Debug function error:', error);
+  }
 };
 
 // Export functions for inline onclick handlers

@@ -218,6 +218,98 @@ function renderLessonContent() {
   };
   renderList('keypoints-list', lessonData.keyPoints);
   renderList('realworld-list', lessonData.realWorld);
+
+  renderInteractive(lessonData.interactive || []);
+}
+
+// ── Interactive walkthrough ───────────────────────────────────────────────────
+// Renders step-by-step code examples + inline exercises from lesson JSON.
+function renderInteractive(items) {
+  if (!items.length) return;
+
+  const section   = document.getElementById('interactive-section');
+  const container = document.getElementById('interactive-container');
+  if (!section || !container) return;
+
+  section.style.display = '';
+
+  container.innerHTML = items.map((item, i) => {
+    if (item.type === 'code') {
+      return `
+        <div class="walkthrough-block" id="wb-${i}">
+          <div class="wb-header">
+            <span class="wb-step">Example ${i + 1}</span>
+            <span class="wb-title">${escapeHtml(item.title || '')}</span>
+          </div>
+          ${item.description ? `<p class="wb-desc">${escapeHtml(item.description)}</p>` : ''}
+          <div class="wb-code-wrap">
+            <button class="wb-copy-btn" onclick="copyWalkthrough(${i})" title="Copy code">⎘</button>
+            <pre class="wb-code" id="wbc-${i}">${escapeHtml(item.code || '')}</pre>
+          </div>
+          ${item.explanation ? `
+          <div class="wb-explanation">
+            <span class="wb-exp-icon">💡</span>
+            <span class="wb-exp-text">${escapeHtml(item.explanation)}</span>
+          </div>` : ''}
+        </div>`;
+    }
+
+    if (item.type === 'exercise') {
+      return `
+        <div class="walkthrough-block wb-exercise" id="wb-${i}">
+          <div class="wb-header">
+            <span class="wb-step wb-step-check">Quick Check</span>
+            <span class="wb-title">${escapeHtml(item.title || '')}</span>
+          </div>
+          <p class="wb-question">${escapeHtml(item.question || '')}</p>
+          <div class="wb-quiz-row">
+            <input class="wb-input" id="wbi-${i}" type="text" placeholder="Type your answer...">
+            <button class="wb-check-btn" onclick="checkWalkthrough(${i}, '${escapeHtml(item.answer || '')}')">Check</button>
+          </div>
+          ${item.hint ? `
+          <button class="wb-hint-btn" onclick="showWbHint(${i})" id="wbhb-${i}">Show hint</button>
+          <div class="wb-hint-text" id="wbh-${i}" style="display:none;">${escapeHtml(item.hint)}</div>` : ''}
+          <div class="wb-feedback" id="wbf-${i}"></div>
+        </div>`;
+    }
+
+    return '';
+  }).join('');
+}
+
+function copyWalkthrough(i) {
+  const pre = document.getElementById(`wbc-${i}`);
+  if (!pre) return;
+  // Strip comment lines that show expected output to give clean runnable code
+  const code = pre.textContent.split('\n')
+    .filter(l => !l.trim().startsWith('# Output:') && !l.trim().startsWith('# '))
+    .join('\n').trim();
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = pre.parentElement.querySelector('.wb-copy-btn');
+    if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = '⎘'; }, 1500); }
+  });
+}
+
+function checkWalkthrough(i, correctAnswer) {
+  const input    = document.getElementById(`wbi-${i}`);
+  const feedback = document.getElementById(`wbf-${i}`);
+  if (!input || !feedback) return;
+
+  const userVal = input.value.trim().replace(/\s+/g, ' ');
+  const correct = correctAnswer.trim().replace(/\s+/g, ' ');
+  const isRight = userVal === correct;
+
+  feedback.className = 'wb-feedback ' + (isRight ? 'wb-correct' : 'wb-wrong');
+  feedback.textContent = isRight
+    ? '✅ Correct!'
+    : `Not quite. The answer is: ${correctAnswer}`;
+}
+
+function showWbHint(i) {
+  const hint = document.getElementById(`wbh-${i}`);
+  const btn  = document.getElementById(`wbhb-${i}`);
+  if (hint) hint.style.display = 'block';
+  if (btn)  btn.style.display  = 'none';
 }
 
 // ── Load quiz ─────────────────────────────────────────────────────────────────

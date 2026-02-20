@@ -174,9 +174,20 @@ function readJSON(file) {
 
 function writeJSON(file, data) {
   try {
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    const jsonString = JSON.stringify(data, null, 2);
+    console.log(`📝 Writing to ${file}:`, jsonString.substring(0, 200));
+    
+    fs.writeFileSync(file, jsonString, 'utf8');
+    console.log(`✅ Write successful to ${file}`);
+    
+    // Verify the write
+    const verification = fs.readFileSync(file, 'utf8');
+    const parsed = JSON.parse(verification);
+    console.log(`✅ Verified write - completedLessons:`, parsed.completedLessons);
+    
   } catch (error) {
-    console.error(`Error writing ${file}:`, error.message);
+    console.error(`❌ Error writing ${file}:`, error.message);
+    console.error(`   Stack:`, error.stack);
     throw error;
   }
 }
@@ -236,6 +247,46 @@ app.get('/health', (req, res) => {
 // Root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// DEBUG ENDPOINT - Test write
+app.get('/api/debug/test-write', async (req, res) => {
+  try {
+    const progress = readJSON(PROGRESS_FILE);
+    
+    // Add a test completion
+    if (!progress.completedLessons) {
+      progress.completedLessons = [];
+    }
+    
+    const testLesson = 'test-' + Date.now();
+    progress.completedLessons.push(testLesson);
+    progress.xp = (progress.xp || 0) + 100;
+    progress.lastWrite = new Date().toISOString();
+    
+    console.log('🧪 TEST WRITE - Before:', progress);
+    writeJSON(PROGRESS_FILE, progress);
+    console.log('🧪 TEST WRITE - After write');
+    
+    // Read it back
+    const verification = readJSON(PROGRESS_FILE);
+    console.log('🧪 TEST WRITE - Verification:', verification);
+    
+    res.json({
+      success: true,
+      testLesson,
+      before: progress,
+      after: verification,
+      match: verification.completedLessons.includes(testLesson)
+    });
+  } catch (error) {
+    console.error('❌ Test write failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
 });
 
 // DEBUG ENDPOINT - Check current state

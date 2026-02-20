@@ -712,8 +712,8 @@ async function nextLesson() {
   }
 }
 
- 
- 
+
+
 
 // Show debug info on screen (for mobile)
 window.showDebugInfo = async function() {
